@@ -1,12 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwipySnake", "SwipySnake.csproj", "{42E35EC4-140C-772B-E1CB-2C461E22038E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42E35EC4-140C-772B-E1CB-2C461E22038E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42E35EC4-140C-772B-E1CB-2C461E22038E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42E35EC4-140C-772B-E1CB-2C461E22038E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42E35EC4-140C-772B-E1CB-2C461E22038E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
