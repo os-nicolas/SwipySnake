@@ -4,6 +4,8 @@ using System.Collections;
 public class SnakeController : MonoBehaviour {
 
 	public bool			isJumping;		
+    // this well not do as a way to keep track of the current branch
+    // how about a referance to the game object?
 	public int			currentBranch; 	//1-left 2-center 3-right
 	public float		xVeloc;
 	public float		yVeloc;
