@@ -21,8 +21,8 @@ public class SnakeController : MonoBehaviour {
 		gravity		  = .001f;
 		camHeight 	  = Camera.main.orthographicSize;
 		camWidth 	  = Camera.main.aspect * camHeight;
-		tragLine 	  = this.GetComponent<LineRenderer> ();
-		tragLine.SetColors (Color.yellow, Color.red);
+		tragLine 	  = this.GetComponent<LineRenderer>();
+		tragLine.SetColors (new Color(1f, 1f, 0f, .75f), new Color(1f,1f,0f,0f));
 		tragLine.SetWidth (.15f, .15f);
 	}
 		
