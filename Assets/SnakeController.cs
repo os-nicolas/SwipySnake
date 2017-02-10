@@ -6,7 +6,7 @@ public class SnakeController : MonoBehaviour {
 	public bool			isJumping;		
     // this well not do as a way to keep track of the current branch
     // how about a referance to the game object?
-	public int			currentBranch; 	//1-left 2-center 3-right
+	public GameObject	currentBranch;
 	public float		xVeloc;
 	public float		yVeloc;
 	public float		camHeight;
@@ -16,13 +16,12 @@ public class SnakeController : MonoBehaviour {
 	//public Vector2[] 	tragectory;
 
 	void Start () {
-		currentBranch = 2; //Start on middle branch
 		isJumping 	  = false;
 		xVeloc 		  = 0f;
 		yVeloc 		  = 0f;
 		gravity		  = .001f;
-		camHeight 	  = Camera.main.orthographicSize;
-		camWidth 	  = Camera.main.aspect * camHeight;
+		//camHeight 	  = Camera.main.orthographicSize;
+		//camWidth 	  = Camera.main.aspect * camHeight;
 		tragLine 	  = this.GetComponent<LineRenderer>();
 		tragLine.SetColors (new Color(1f, 1f, 0f, .75f), new Color(1f,1f,0f,0f));
 		tragLine.SetWidth (.15f, .15f);
@@ -37,22 +36,8 @@ public class SnakeController : MonoBehaviour {
 			yVeloc -= gravity;
 			p.x += xVeloc;
 			p.y += yVeloc;
-			Vector3 screenPoint = Camera.main.gameObject.transform.position;
-			if (screenPoint.x < 0 || screenPoint.x > camHeight) {
-				p.x = 0;
-				xVeloc = 0;
-			}
-			if (screenPoint.y < 0 || screenPoint.y > camWidth) {
-				p.y = 0;
-			}
-			transform.position = p;
 		}
 
-		/* If the snake is not jumping it is on a branch.
-		 *   Use mouse position to draw tragectory line
-		 *   If the mouse is clicked begin jump
-		 *   FIXME: Otherwise, oscillate along the branch.
-		*/
 		else {
 			Vector2 mousePos = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
 			mousePos = Camera.main.ScreenToWorldPoint (mousePos);
@@ -62,30 +47,27 @@ public class SnakeController : MonoBehaviour {
 			drawTrajectory (mousePos, diffX, diffY);
 			//Debug.Log ("diffY : " + diffY);
 			//Debug.Log ("diffX : " + diffX);
-			if (Input.GetMouseButtonDown(0)) {
+			if (Input.GetMouseButtonDown (0)) {
 				xVeloc = diffX;
 				yVeloc = diffY;
 				isJumping = true;
-				tragLine.SetPosition(0, Vector3.zero);
-				tragLine.SetPosition(1, Vector3.zero);
+				tragLine.SetPosition (0, Vector3.zero);
+				tragLine.SetPosition (1, Vector3.zero);
+			} else {
+				p = currentBranch.GetComponent<BranchController> ().getNextPos(transform.position);
 			}
 		}
+		transform.position = p;
+		Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
 	}
 
 	void OnCollisionEnter2D(Collision2D col)
 	{
-		if (col.gameObject.name == "branch_" + ((currentBranch + 1) % 3).ToString()) {
-			Debug.Log ("Collision with " + col.gameObject.name);
-			currentBranch = (currentBranch + 1) % 3;
-			xVeloc = 0f;
-			yVeloc = 0f;
+		Debug.Log ("Collision!");
+		if (col.gameObject.name == "branch_1" && col.gameObject.GetComponent<BranchController>().isCollidable == true) {
+			Debug.Log ("Collision2222!");
+			currentBranch = col.gameObject;
 			isJumping = false;
-		} else if (col.gameObject.name == "branch_" + ((currentBranch + 2) % 3).ToString()) {
-			Debug.Log ("Collision with " + col.gameObject.name);
-			currentBranch = (currentBranch + 2) % 3;
-			xVeloc = 0f;
-			yVeloc = 0f;
-			isJumping = false; 
 		}
 	}
 
