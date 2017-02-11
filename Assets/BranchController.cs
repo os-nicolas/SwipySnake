@@ -24,6 +24,7 @@ public class BranchController : MonoBehaviour {
 	{
 		Vector3 newSnakePos = snakePos;
 		newSnakePos.y += .1f;
+		newSnakePos.x = transform.position.x;
 		return newSnakePos;
 	}
 }

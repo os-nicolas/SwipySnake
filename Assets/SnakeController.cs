@@ -61,10 +61,10 @@ public class SnakeController : MonoBehaviour {
 		Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
 	}
 
-	void OnCollisionEnter2D(Collision2D col)
+	void OnTriggerEnter2D(Collider2D col)
 	{
-		Debug.Log ("Collision!");
-		if (col.gameObject.name == "branch_1" && col.gameObject.GetComponent<BranchController>().isCollidable == true) {
+		Debug.Log ("Collision with " + col.name);
+		if (col.name == "branch_straight(Clone)" && col.gameObject.GetComponent<BranchController>().isCollidable == true) {
 			Debug.Log ("Collision2222!");
 			currentBranch = col.gameObject;
 			isJumping = false;
