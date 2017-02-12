@@ -2,8 +2,8 @@
 using System.Collections;
 
 public class SnakeController : MonoBehaviour {
-
-	public bool			isJumping;		
+    public float        mouseDamper = 50f;
+    public bool			isJumping;		
 	public GameObject	currentBranch;
 	public float		xVeloc;
 	public float		yVeloc;
@@ -32,8 +32,8 @@ public class SnakeController : MonoBehaviour {
         Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
-        float diffX = (mousePos.x - p.x) / 50;
-        float diffY = (mousePos.y - p.y) / 50;
+        float diffX = (mousePos.x - p.x) / mouseDamper;
+        float diffY = (mousePos.y - p.y) / mouseDamper;
         
         drawTrajectory(mousePos, diffX, diffY);
 
