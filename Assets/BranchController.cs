@@ -1,14 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-/* Branches are Lines that curve around through 3d space
- *  for the snake to travel along
- * 
- * 
- * 
- */
-
-
+/// <summary>
+/// Branches are Lines that curve around through 3d space
+/// for the snake to travel along
+/// </summary>
 public class BranchController : MonoBehaviour {
 
 	public bool isCollidable;
