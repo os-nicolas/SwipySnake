@@ -18,7 +18,7 @@ public class BranchController : MonoBehaviour {
 
 	public Vector3 getNextPos(Vector3 snakePos)
 	{
-		Vector3 newSnakePos = snakePos;
+		var newSnakePos = snakePos;
 		newSnakePos.y += .1f;
 		newSnakePos.x = transform.position.x;
 		return newSnakePos;

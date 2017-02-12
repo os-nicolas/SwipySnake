@@ -29,11 +29,11 @@ public class SnakeController : MonoBehaviour {
 	void FixedUpdate () {
         var p = transform.position;
 
-        Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        var mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
-        float diffX = (mousePos.x - p.x) / mouseDamper;
-        float diffY = (mousePos.y - p.y) / mouseDamper;
+        var diffX = (mousePos.x - p.x) / mouseDamper;
+        var diffY = (mousePos.y - p.y) / mouseDamper;
         
         drawTrajectory(mousePos, diffX, diffY);
 
@@ -73,12 +73,12 @@ public class SnakeController : MonoBehaviour {
 
 		tragLine.SetVertexCount (v);
 
-		float xDist = diffX;
-		float yDist = diffY;
-		float nextX = transform.position.x;
-		float nextY = transform.position.y;
+		var xDist = diffX;
+		var yDist = diffY;
+		var nextX = transform.position.x;
+		var nextY = transform.position.y;
 
-		Vector2 firstPoint = new Vector2 (nextX, nextY);
+		var firstPoint = new Vector2 (nextX, nextY);
 		tragLine.SetPosition (0, firstPoint);
 
 		for (int i = 1; i < v; i++) {
@@ -87,7 +87,7 @@ public class SnakeController : MonoBehaviour {
 				nextY += yDist;
 				yDist -= gravity;
 			}
-			Vector2 nextDot = new Vector2 (nextX, nextY);
+			var nextDot = new Vector2 (nextX, nextY);
 			tragLine.SetPosition (i, nextDot);
 			//trag = Vector2.Lerp (trag, nextDot, t);
 		}
