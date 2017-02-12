@@ -59,7 +59,7 @@ public class SnakeController : MonoBehaviour {
 	void OnTriggerEnter2D(Collider2D col)
 	{
 		Debug.Log ("Collision with " + col.name);
-		if (col.name == "branch_straight(Clone)" && col.gameObject.GetComponent<BranchController>().isCollidable == true) {
+		if (col.gameObject.GetComponent<BranchController>() != null && col.gameObject.GetComponent<BranchController>().isCollidable == true) {
 			Debug.Log ("Collision2222!");
 			currentBranch = col.gameObject;
 			isJumping = false;
