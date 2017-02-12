@@ -4,8 +4,6 @@ using System.Collections;
 public class SnakeController : MonoBehaviour {
 
 	public bool			isJumping;		
-    // this well not do as a way to keep track of the current branch
-    // how about a referance to the game object?
 	public GameObject	currentBranch;
 	public float		xVeloc;
 	public float		yVeloc;
@@ -29,24 +27,21 @@ public class SnakeController : MonoBehaviour {
 		
 	// Update is called once per frame
 	void FixedUpdate () {
-		//Debug.Log ("xVeloc: " + xVeloc);
-		//Debug.Log ("yVeloc: " + yVeloc);
-		Vector3 p = transform.position;
+        var p = transform.position;
+
+        Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        mousePos = Camera.main.ScreenToWorldPoint(mousePos);
+
+        float diffX = (mousePos.x - p.x) / 50;
+        float diffY = (mousePos.y - p.y) / 50;
+        
+        drawTrajectory(mousePos, diffX, diffY);
+
 		if (isJumping == true) {
 			yVeloc -= gravity;
 			p.x += xVeloc;
 			p.y += yVeloc;
-		}
-
-		else {
-			Vector2 mousePos = new Vector2 (Input.mousePosition.x, Input.mousePosition.y);
-			mousePos = Camera.main.ScreenToWorldPoint (mousePos);
-
-			float diffX = (mousePos.x - p.x)/50;
-			float diffY = (mousePos.y - p.y)/50;
-			drawTrajectory (mousePos, diffX, diffY);
-			//Debug.Log ("diffY : " + diffY);
-			//Debug.Log ("diffX : " + diffX);
+		}else {
 			if (Input.GetMouseButtonDown (0)) {
 				xVeloc = diffX;
 				yVeloc = diffY;
