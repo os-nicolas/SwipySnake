@@ -3,19 +3,19 @@ using System.Collections;
 
 public class Spawner : MonoBehaviour {
 
-	public GameObject player;
-	public GameObject[] branches;
+	public SnakeController player;
+	public BranchController[] branches;
 	// Use this for initialization
 	void Start () {
-		player = Instantiate(Resources.Load("Snake")) as GameObject;
-		branches = new GameObject[12];
+		
+		branches = new BranchController[3];
 		for (int i = 0; i < 3; i++) {
-			branches[i] = (GameObject)Instantiate(Resources.Load("branch_straight"));
-			Vector3 bPos = branches [i].transform.position;
-			bPos.x += 5 * i;
-			branches [i].transform.position = bPos;
+			branches[i] = Instantiate(Resources.Load("Branch")) as BranchController;
+			branches [i].nextPieceLocation = new Vector2 (i * 5, 0);
 		}
-		player.GetComponent<SnakeController> ().currentBranch = branches [1];
+		player = Instantiate(Resources.Load("Snake")) as SnakeController;
+		//player.GetComponent<SnakeController> ().currentBranch = branches [1];
+		player.currentBranch = branches[1];
 	}
 	
 	// Update is called once per frame

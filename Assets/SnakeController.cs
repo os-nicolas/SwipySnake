@@ -4,7 +4,7 @@ using System.Collections;
 public class SnakeController : MonoBehaviour {
     public float        mouseDamper = 50f;
     public bool			isJumping;		
-	public GameObject	currentBranch;
+	public BranchController	currentBranch;
 	public float		xVeloc;
 	public float		yVeloc;
 	public float		camHeight;
@@ -49,7 +49,7 @@ public class SnakeController : MonoBehaviour {
 				tragLine.SetPosition (0, Vector3.zero);
 				tragLine.SetPosition (1, Vector3.zero);
 			} else {
-				p = currentBranch.GetComponent<BranchController> ().getNextPos(transform.position);
+				p = currentBranch.getNextPos(transform.position);
 			}
 		}
 		transform.position = p;
@@ -61,7 +61,7 @@ public class SnakeController : MonoBehaviour {
 		Debug.Log ("Collision with " + col.name);
 		if (col.gameObject.GetComponent<BranchController>() != null && col.gameObject.GetComponent<BranchController>().isCollidable == true) {
 			Debug.Log ("Collision2222!");
-			currentBranch = col.gameObject;
+			currentBranch = col.gameObject as BranchController;
 			isJumping = false;
 		}
 	}
