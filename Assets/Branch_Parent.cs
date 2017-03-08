@@ -6,6 +6,8 @@ public class Branch_Parent : MonoBehaviour {
 	public Vector2[] player_path;
 	public int curPoint;
 	public bool finished;
+	public BranchController parent_branch;
+	public int myIndex;
 
 
 	// Use this for initialization

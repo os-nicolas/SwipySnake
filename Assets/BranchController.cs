@@ -7,19 +7,22 @@ using System.Collections;
 /// </summary>
 public class BranchController : MonoBehaviour {
 
-	public bool isCollidable;
+
 	public Branch_Parent[] pieces;
 	public Vector2 nextPieceLocation;
 	public int currentPiece;
+	public bool isCollidable;
 
 	void Start () {
-		pieces = new Branch_Parent[3];
 		isCollidable = true;
+		pieces = new Branch_Parent[3];
 		currentPiece = 0;
 		for (int i = 0; i < 3; i++) {
 			BranchStraight piece = Instantiate(Resources.Load("Branch_Straight")) as BranchStraight;
+			piece.transform.position = new Vector3(nextPieceLocation.x, nextPieceLocation.y, 0);
+			piece.parent_branch = this;
+			piece.myIndex = i;
 			pieces [i] = piece;
-			piece.transform.position = nextPieceLocation;
 			nextPieceLocation = piece.getEndPosition ();
 		}
 	}

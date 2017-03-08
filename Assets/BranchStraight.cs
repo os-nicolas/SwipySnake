@@ -4,7 +4,7 @@ using System.Collections;
 public class BranchStraight : Branch_Parent {
 
 	// Use this for initialization
-	public BranchStraight () {
+	void Start () {
 		var p = transform.position;
 		Vector2 pos = new Vector2(p.x, p.y);
 		player_path = new Vector2[10];

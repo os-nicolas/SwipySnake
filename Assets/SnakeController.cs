@@ -18,7 +18,7 @@ public class SnakeController : MonoBehaviour {
 		xVeloc 		  = 0f;
 		yVeloc 		  = 0f;
 		gravity		  = .001f;
-		//camHeight 	  = Camera.main.orthographicSize;
+		//camHeight	  = Camera.main.orthographicSize;
 		//camWidth 	  = Camera.main.aspect * camHeight;
 		tragLine 	  = this.GetComponent<LineRenderer>();
 		tragLine.SetColors (new Color(1f, 1f, 0f, .75f), new Color(1f,1f,0f,0f));
@@ -59,9 +59,12 @@ public class SnakeController : MonoBehaviour {
 	void OnTriggerEnter2D(Collider2D col)
 	{
 		Debug.Log ("Collision with " + col.name);
-		if (col.gameObject.GetComponent<BranchController>() != null && col.gameObject.GetComponent<BranchController>().isCollidable == true) {
-			Debug.Log ("Collision2222!");
-			currentBranch = col.gameObject as BranchController;
+		if (col.name.StartsWith("Branch") &&
+			//col.gameObject.GetComponent<Branch_Parent>() != null &&
+			col.gameObject.GetComponent<Branch_Parent>().parent_branch.isCollidable == true) {
+			Debug.Log ("Collision!");
+			currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
+			currentBranch.currentPiece = col.gameObject.GetComponent<Branch_Parent>().myIndex;
 			isJumping = false;
 		}
 	}
