@@ -14,7 +14,7 @@ public class Spawner : MonoBehaviour {
 		for (int i = 0; i < 3; i++) {
             var branchGameObject = (GameObject)Instantiate(Resources.Load("Branch"));
             var branchController = branchGameObject.GetComponent<BranchController>();
-            branchController.nextPieceLocation = new Vector2 (i * 5f, 0f);
+            branchController.Init( new Vector2 (i * 5f, 0f));
 			branches [i] = branchController;
 		}
         var playerGameObject = (GameObject)Instantiate(Resources.Load("Snake"));;

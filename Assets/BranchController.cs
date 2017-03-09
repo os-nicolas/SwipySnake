@@ -13,8 +13,9 @@ public class BranchController : MonoBehaviour {
 	public int currentPiece;
 	public bool isCollidable;
 
-	void Start () {
-		isCollidable = true;
+	public void Init (Vector2 p) {
+        nextPieceLocation = p;
+        isCollidable = true;
 		pieces = new Branch_Parent[3];
 		currentPiece = 0;
 		for (int i = 0; i < 3; i++) {
@@ -27,11 +28,7 @@ public class BranchController : MonoBehaviour {
 			nextPieceLocation = piece.getEndPosition ();
 		}
 	}
-
-	void Update () {
-		//If a branch goes off the screen, replace it with a new one
-	}
-
+    
 	public Vector3 getNextPos(Vector3 snakePos)
 	{
 		if (pieces [currentPiece].finished == true) {
