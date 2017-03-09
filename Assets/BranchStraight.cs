@@ -2,10 +2,8 @@
 using System.Collections;
 
 public class BranchStraight : Branch_Parent {
-
-	// Use this for initialization
-	void Start () {
-		var p = transform.position;
+    
+	public override void Init(Vector3 p) {
 		Vector2 pos = new Vector2(p.x, p.y);
 		player_path = new Vector2[10];
 		for (int i = 0; i < 10; i++) {

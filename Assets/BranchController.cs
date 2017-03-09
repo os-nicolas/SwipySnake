@@ -20,7 +20,7 @@ public class BranchController : MonoBehaviour {
 		for (int i = 0; i < 3; i++) {
             var BranchStraightGameObject = Instantiate(Resources.Load("Branch_Straight")) as GameObject;
             BranchStraight piece = BranchStraightGameObject.GetComponent<BranchStraight>();
-			piece.transform.position = new Vector3(nextPieceLocation.x, nextPieceLocation.y, 0);
+			piece.Init(new Vector3(nextPieceLocation.x, nextPieceLocation.y, 0));
 			piece.parent_branch = this;
 			piece.myIndex = i;
 			pieces [i] = piece;

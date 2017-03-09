@@ -19,7 +19,6 @@ public class Spawner : MonoBehaviour {
 		}
         var playerGameObject = (GameObject)Instantiate(Resources.Load("Snake"));;
         player = playerGameObject.GetComponent<SnakeController>();
-        //player.GetComponent<SnakeController> ().currentBranch = branches [1];
         player.currentBranch = branches[1];
 	}
 	
