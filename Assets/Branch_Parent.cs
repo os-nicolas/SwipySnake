@@ -40,6 +40,6 @@ public abstract class Branch_Parent : MonoBehaviour {
     public abstract void Init(Vector3 p);
 
 	public Vector2 getEndPosition() {
-		return player_path [player_path.Length];
+		return player_path [player_path.Length-1];
 	}
 }
