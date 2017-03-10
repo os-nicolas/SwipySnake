@@ -11,9 +11,11 @@ public class SnakeController : MonoBehaviour {
 	public float 		camWidth;
 	public float 		gravity;
 	public LineRenderer tragLine;		//Draws Jump Tragectory Line
+	public float		branchSpeed;
 	//public Vector2[] 	tragectory;
 
 	void Start () {
+		branchSpeed   = 1f;
 		isJumping 	  = false;
 		xVeloc 		  = 0f;
 		yVeloc 		  = 0f;
@@ -49,7 +51,10 @@ public class SnakeController : MonoBehaviour {
 				tragLine.SetPosition (0, Vector3.zero);
 				tragLine.SetPosition (1, Vector3.zero);
 			} else {
-				p.y = currentBranch.GetComponent<Branch_Parent>().getNextPosition(transform.position.x);
+				p.x = currentBranch.GetComponent<Branch_Parent>().getNextPosition(transform.position.y);
+				if (yVeloc < branchSpeed)
+					yVeloc += .2f;
+				p.y += yVeloc;
 			}
 		}
 		transform.position = p;
@@ -63,7 +68,9 @@ public class SnakeController : MonoBehaviour {
 			col.gameObject.GetComponent<Branch_Parent>().isCollidable == true) {
 			Debug.Log ("Collision Succeeded!");
 			//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
+			col.gameObject.GetComponent<Branch_Parent>().isCollidable = false;
 			currentBranch = col.gameObject;
+
 			isJumping = false;
 		}
 	}

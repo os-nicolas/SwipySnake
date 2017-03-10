@@ -25,15 +25,15 @@ public class Branch_Parent : MonoBehaviour {
 	}
 
 	//Return the next position for the snake to continue towards on the branch
-	public float getNextPosition(float xPos) {
+	public float getNextPosition(float yPos) {
 		int count = 0;
 		int size = player_path.Length;
-		while (player_path [count].x < xPos) {
+		while (player_path [count].y < yPos) {
 			count++;
 			if (count == size)
 				return -999; // send snake onto next branch
 		}
-		return player_path [count].y;
+		return player_path [count].x;
 	}
 
 
