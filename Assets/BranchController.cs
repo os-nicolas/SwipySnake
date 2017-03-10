@@ -37,7 +37,7 @@ public class BranchController : MonoBehaviour {
 		Vector2 pos = pieces [currentPiece].getNextPoint ();
 
 		Vector3 newSnakePos = snakePos;
-		newSnakePos.y += (newSnakePos.y + pos.y)/2;
+		newSnakePos.y = (newSnakePos.y + pos.y)/2;
 		newSnakePos.x = (newSnakePos.x + pos.x)/2;
 		if (newSnakePos.x == pos.x && newSnakePos.y == pos.y) {
 			pieces [currentPiece].incrementPoint();

@@ -8,7 +8,7 @@ public class BranchStraight : Branch_Parent {
 		player_path = new Vector2[10];
 		for (int i = 0; i < 10; i++) {
 			player_path [i] = pos;
-			pos.x += 10f;
+			pos.y += 1f;
 		}
 	}
 }
