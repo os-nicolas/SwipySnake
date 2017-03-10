@@ -15,22 +15,27 @@ public class BranchController : MonoBehaviour {
 	public int currentPiece;
 	public bool isCollidable;
 
-	void Start () {
-		isCollidable = true;
+	public void Init (Vector2 p) {
+        nextPieceLocation = p;
+        isCollidable = true;
 		pieces = new Branch_Parent[3];
 		currentPiece = 0;
 		for (int i = 0; i < 3; i++) {
+<<<<<<< HEAD
 			BranchStraight piece = Instantiate(Resources.Load("Branch_Straight")) as BranchStraight;
 			piece.transform.position = new Vector3(nextPieceLocation.x, nextPieceLocation.y, 0);
+=======
+            var BranchStraightGameObject = Instantiate(Resources.Load("Branch_Straight")) as GameObject;
+            BranchStraight piece = BranchStraightGameObject.GetComponent<BranchStraight>();
+			piece.Init(new Vector3(nextPieceLocation.x, nextPieceLocation.y, 0));
+			piece.parent_branch = this;
+			piece.myIndex = i;
+>>>>>>> b88915c488ea0085d16e8aab1d62e085b9e6a5eb
 			pieces [i] = piece;
 			nextPieceLocation = piece.getEndPosition ();
 		}
 	}
-
-	void Update () {
-		//If a branch goes off the screen, replace it with a new one
-	}
-
+    
 	public Vector3 getNextPos(Vector3 snakePos)
 	{
 		if (pieces [currentPiece].finished == true) {
@@ -39,7 +44,7 @@ public class BranchController : MonoBehaviour {
 		Vector2 pos = pieces [currentPiece].getNextPoint ();
 
 		Vector3 newSnakePos = snakePos;
-		newSnakePos.y += (newSnakePos.y + pos.y)/2;
+		newSnakePos.y = (newSnakePos.y + pos.y)/2;
 		newSnakePos.x = (newSnakePos.x + pos.x)/2;
 		if (newSnakePos.x == pos.x && newSnakePos.y == pos.y) {
 			pieces [currentPiece].incrementPoint();
