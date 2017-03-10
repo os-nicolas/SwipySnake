@@ -4,7 +4,7 @@ using System.Collections;
 public class SnakeController : MonoBehaviour {
     public float        mouseDamper = 50f;
     public bool			isJumping;		
-	public BranchController	currentBranch;
+	public GameObject	currentBranch;
 	public float		xVeloc;
 	public float		yVeloc;
 	public float		camHeight;
@@ -49,7 +49,7 @@ public class SnakeController : MonoBehaviour {
 				tragLine.SetPosition (0, Vector3.zero);
 				tragLine.SetPosition (1, Vector3.zero);
 			} else {
-				p = currentBranch.getNextPos(transform.position);
+				p.y = currentBranch.GetComponent<Branch_Parent>().getNextPosition(transform.position.x);
 			}
 		}
 		transform.position = p;
@@ -59,12 +59,11 @@ public class SnakeController : MonoBehaviour {
 	void OnTriggerEnter2D(Collider2D col)
 	{
 		Debug.Log ("Collision with " + col.name);
-		if (col.name.StartsWith("Branch") &&
-			//col.gameObject.GetComponent<Branch_Parent>() != null &&
-			col.gameObject.GetComponent<Branch_Parent>().parent_branch.isCollidable == true) {
-			Debug.Log ("Collision!");
-			currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
-			currentBranch.currentPiece = col.gameObject.GetComponent<Branch_Parent>().myIndex;
+		if (col.gameObject.GetComponent<Branch_Parent>() != null &&
+			col.gameObject.GetComponent<Branch_Parent>().isCollidable == true) {
+			Debug.Log ("Collision Succeeded!");
+			//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
+			currentBranch = col.gameObject;
 			isJumping = false;
 		}
 	}
