@@ -37,8 +37,9 @@ public abstract class Branch_Parent : MonoBehaviour {
 		Debug.Log (size);
 		while (player_path [count].y < yPos) {
 			count++;
-			if (count == size-1)
+			if (count == size - 1) {
 				return -999; // send snake onto next branch
+			}
 		}
 		return player_path [count].x;
 	}
@@ -53,4 +54,6 @@ public abstract class Branch_Parent : MonoBehaviour {
 	public Vector2 getEndPosition() {
 		return player_path [player_path.Length-1];
 	}
+
+
 }

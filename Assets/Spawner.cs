@@ -9,16 +9,22 @@ public class Spawner : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		player = Instantiate(Resources.Load("Snake")) as GameObject;
-		branches = new GameObject[12];
-		//BranchController branch;
-		for (int i = 0; i < 3; i++) {
-			branches [i] = (GameObject)Instantiate (Resources.Load ("branch_straight"));
-			Vector3 bPos = branches[i].transform.position;
-			bPos.x += 5 * (i-1);
-			branches[i].transform.position = bPos;
-			branches [i].GetComponent<BranchStraight> ().Init (bPos);
+		GameObject[] branches = new GameObject[9];
+
+		for (int i=0; i<3; i++) {
+
+			branches [i*3] = (GameObject)Instantiate (Resources.Load ("branch_straight"));
+			Vector3 bPos = branches [i*3].transform.position;
+			bPos.x = (i-1)*5;
+			branches [i*3].transform.position = bPos;
+			branches [i*3].GetComponent<BranchStraight> ().Init (bPos);
+
+			branches [i*3+1] = (GameObject)Instantiate (Resources.Load ("branch_straight"));
+			bPos = branches [i*3].GetComponent<Branch_Parent> ().getEndPosition ();
+			branches [i*3+1].transform.position = bPos;
+			branches [i*3+1].GetComponent<BranchStraight> ().Init (bPos);
 		}
-			player.GetComponent<SnakeController> ().currentBranch = branches[1];
+		player.GetComponent<SnakeController> ().currentBranch = branches[1];
 	}
 	
 	// Update is called once per frame
