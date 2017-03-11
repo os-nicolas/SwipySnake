@@ -15,7 +15,7 @@ public class SnakeController : MonoBehaviour {
 	//public Vector2[] 	tragectory;
 
 	void Start () {
-		branchSpeed   = 1f;
+		branchSpeed   = .2f;
 		isJumping 	  = false;
 		xVeloc 		  = 0f;
 		yVeloc 		  = 0f;
@@ -53,7 +53,7 @@ public class SnakeController : MonoBehaviour {
 			} else {
 				p.x = currentBranch.GetComponent<Branch_Parent>().getNextPosition(transform.position.y);
 				if (yVeloc < branchSpeed)
-					yVeloc += .2f;
+					yVeloc += .04f;
 				p.y += yVeloc;
 			}
 		}
