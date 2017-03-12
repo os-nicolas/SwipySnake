@@ -23,12 +23,14 @@ public class SnakeController : MonoBehaviour {
 		//camHeight	  = Camera.main.orthographicSize;
 		//camWidth 	  = Camera.main.aspect * camHeight;
 		tragLine 	  = this.GetComponent<LineRenderer>();
-		tragLine.SetColors (new Color(1f, 1f, 0f, .75f), new Color(1f,1f,0f,0f));
-		tragLine.SetWidth (.15f, .15f);
-	}
-		
-	// Update is called once per frame
-	void FixedUpdate () {
+        tragLine.startColor = new Color(1f, 1f, 0f, .75f);
+        tragLine.endColor = new Color(1f,1f,0f,0f);
+		tragLine.startWidth =  .15f;
+        tragLine.endWidth = .15f;
+    }
+
+    // Update is called once per frame
+    void FixedUpdate () {
         var p = transform.position;
 
         var mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
@@ -80,7 +82,7 @@ public class SnakeController : MonoBehaviour {
 
 		int v = 30; // number of vertices
 
-		tragLine.SetVertexCount (v);
+		tragLine.numPositions =  v;
 
 		var xDist = diffX;
 		var yDist = diffY;
