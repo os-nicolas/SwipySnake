@@ -3,25 +3,18 @@ using System.Collections;
 
 public class SnakeController : MonoBehaviour {
     public float        mouseDamper = 50f;
-    public bool			isJumping;		
+    public bool			isJumping = false;		
 	public GameObject	currentBranch;
-	public float		xVeloc;
-	public float		yVeloc;
+	public float		xVeloc = 0f;
+	public float		yVeloc = 0f;
 	public float		camHeight;
 	public float 		camWidth;
-	public float 		gravity;
+	public float 		gravity = .001f;
 	public LineRenderer tragLine;		//Draws Jump Tragectory Line
-	public float		branchSpeed;
+	public float		branchSpeed = .2f;
 	//public Vector2[] 	tragectory;
 
 	void Start () {
-		branchSpeed   = .2f;
-		isJumping 	  = false;
-		xVeloc 		  = 0f;
-		yVeloc 		  = 0f;
-		gravity		  = .001f;
-		//camHeight	  = Camera.main.orthographicSize;
-		//camWidth 	  = Camera.main.aspect * camHeight;
 		tragLine 	  = this.GetComponent<LineRenderer>();
         tragLine.startColor = new Color(1f, 1f, 0f, .75f);
         tragLine.endColor = new Color(1f,1f,0f,0f);
