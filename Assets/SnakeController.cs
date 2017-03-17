@@ -2,24 +2,28 @@
 using System.Collections;
 
 public class SnakeController : MonoBehaviour {
-    public float        mouseDamper = 50f;
-    public bool			isJumping = false;		
+    public float        mouseDamper;
+    public bool			isJumping;		
 	public GameObject	currentBranch;
-	public float		xVeloc = 0f;
-	public float		yVeloc = 0f;
+	public float		xVeloc;
+	public float		yVeloc;
 	public float		camHeight;
 	public float 		camWidth;
-	public float 		gravity = .001f;
+	public float 		gravity;
 	public LineRenderer tragLine;		//Draws Jump Tragectory Line
-	public float		branchSpeed = .2f;
+	public float		branchSpeed;
 	//public Vector2[] 	tragectory;
 
 	void Start () {
+		mouseDamper = 50f;
+		isJumping = false;
+		xVeloc = 0f;
+		yVeloc = 0f;
+		gravity = .001f;
+		branchSpeed = .1f;
 		tragLine 	  = this.GetComponent<LineRenderer>();
-        tragLine.startColor = new Color(1f, 1f, 0f, .75f);
-        tragLine.endColor = new Color(1f,1f,0f,0f);
-		tragLine.startWidth =  .15f;
-        tragLine.endWidth = .15f;
+		tragLine.SetColors (new Color (1f, 1f, 0f, .75f), new Color (1f, 1f, 0f, 0f));
+		tragLine.SetWidth (.15f, .15f);
     }
 
     // Update is called once per frame
@@ -64,6 +68,7 @@ public class SnakeController : MonoBehaviour {
 			Debug.Log ("Collision Succeeded!");
 			//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
 			col.gameObject.GetComponent<Branch_Parent>().isCollidable = false;
+			currentBranch.GetComponent<Branch_Parent> ().isCollidable = true;
 			currentBranch = col.gameObject;
 
 			isJumping = false;
@@ -75,7 +80,7 @@ public class SnakeController : MonoBehaviour {
 
 		int v = 30; // number of vertices
 
-		tragLine.numPositions =  v;
+		tragLine.SetVertexCount (v);
 
 		var xDist = diffX;
 		var yDist = diffY;
