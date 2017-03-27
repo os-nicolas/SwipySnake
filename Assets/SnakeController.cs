@@ -7,11 +7,11 @@ public class SnakeController : MonoBehaviour {
 	public GameObject	currentBranch;
 	public float		xVeloc;
 	public float		yVeloc;
-	public float		camHeight;
+    public float        branchVeloc;
+    public float		camHeight;
 	public float 		camWidth;
 	public float 		gravity;
 	public LineRenderer tragLine;		//Draws Jump Tragectory Line
-	public float		branchSpeed;
 	//public Vector2[] 	tragectory;
 
 	void Start () {
@@ -20,7 +20,6 @@ public class SnakeController : MonoBehaviour {
 		xVeloc = 0f;
 		yVeloc = 0f;
 		gravity = .001f;
-		branchSpeed = .1f;
 		tragLine 	  = this.GetComponent<LineRenderer>();
 		tragLine.SetColors (new Color (1f, 1f, 0f, .75f), new Color (1f, 1f, 0f, 0f));
 		tragLine.SetWidth (.15f, .15f);
@@ -59,12 +58,13 @@ public class SnakeController : MonoBehaviour {
 			p.x += xVeloc;
 			p.y += yVeloc;
 		}else {
-            if (yVeloc < branchSpeed)
+            var branch = currentBranch.GetComponent<Branch_Parent>();
+            var branchSpeed = branch.branchSpeed;
+            if (branchVeloc < branchSpeed)
             {
-                yVeloc += .04f;
+                branchVeloc = ((branchVeloc * 9f) + branchSpeed)/10f;
             }
-            p.x = currentBranch.GetComponent<Branch_Parent>().getNextPosition(transform.position.y);
-			p.y += yVeloc;
+            p = currentBranch.GetComponent<Branch_Parent>().getNextPosition(p, branchVeloc);
 		}
 		transform.position = p;
 	}
@@ -79,8 +79,8 @@ public class SnakeController : MonoBehaviour {
 			col.gameObject.GetComponent<Branch_Parent>().isCollidable = false;
 			currentBranch.GetComponent<Branch_Parent> ().isCollidable = true;
 			currentBranch = col.gameObject;
-
-			isJumping = false;
+            branchVeloc = 0;
+            isJumping = false;
 		}
 	}
 

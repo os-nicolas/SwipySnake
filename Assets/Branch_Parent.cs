@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public abstract class Branch_Parent : MonoBehaviour {
 
 	public Vector2[] player_path;
 	public int age; // 0 => next, 1 => current, 2 => last
 	public bool isCollidable;
+    public float branchSpeed = .1f;
 
 
 	// Use this for initialization
@@ -30,18 +32,23 @@ public abstract class Branch_Parent : MonoBehaviour {
 	}
 	// return false if branch needs to be destroyed
 
-	//Return the next position for the snake to continue towards on the branch
-	public float getNextPosition(float yPos) {
-		int count = 0;
-		int size = player_path.Length;
-		Debug.Log (size);
-		while (player_path [count].y < yPos) {
-			count++;
-			if (count == size - 1) {
-				return -999; // send snake onto next branch
-			}
-		}
-		return player_path [count].x;
+	//Return the next position for the snake
+	public Vector2 getNextPosition(Vector2 pos, float velocity) {
+        var next = default(Vector2);
+        var last = default(Vector2);
+        var closestDistance = 99999f;
+        for (int i = 0; i < player_path.Length-1; i++)
+        {
+            var centerOfPair = (player_path[i] + player_path[i + 1]) / 2f;
+            var distance = (centerOfPair - pos).magnitude;
+            if (distance < closestDistance) {
+                next = player_path[i + 1];
+                last = player_path[i];
+                closestDistance = distance;
+            }
+        }
+        var direction = (next - pos).normalized;
+        return new Vector2(pos.x,pos.y) + (velocity * direction);
 	}
 
     /// <summary>
@@ -54,6 +61,5 @@ public abstract class Branch_Parent : MonoBehaviour {
 	public Vector2 getEndPosition() {
 		return player_path [player_path.Length-1];
 	}
-
-
+    
 }
