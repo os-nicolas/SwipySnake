@@ -26,8 +26,9 @@ public class SnakeController : MonoBehaviour {
 		tragLine.SetWidth (.15f, .15f);
     }
 
-    // Update is called once per frame
-    void FixedUpdate () {
+    // drawing and input in update
+    void Update()
+    {
         var p = transform.position;
 
         var mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
@@ -35,29 +36,39 @@ public class SnakeController : MonoBehaviour {
 
         var diffX = (mousePos.x - p.x) / mouseDamper;
         var diffY = (mousePos.y - p.y) / mouseDamper;
-        
+
         drawTrajectory(mousePos, diffX, diffY);
 
-		if (isJumping == true) {
+        if (!isJumping && Input.GetMouseButtonDown(0))
+        {
+            xVeloc = diffX;
+            yVeloc = diffY;
+            isJumping = true;
+            tragLine.SetPosition(0, Vector3.zero);
+            tragLine.SetPosition(1, Vector3.zero);
+        }
+        
+        Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
+    }
+    
+    // we do movement in FixedUpdate
+    void FixedUpdate () {
+
+        var p = transform.position;
+
+        if (isJumping) {
 			yVeloc -= gravity;
 			p.x += xVeloc;
 			p.y += yVeloc;
 		}else {
-			if (Input.GetMouseButtonDown (0)) {
-				xVeloc = diffX;
-				yVeloc = diffY;
-				isJumping = true;
-				tragLine.SetPosition (0, Vector3.zero);
-				tragLine.SetPosition (1, Vector3.zero);
-			} else {
-				p.x = currentBranch.GetComponent<Branch_Parent>().getNextPosition(transform.position.y);
-				if (yVeloc < branchSpeed)
-					yVeloc += .04f;
-				p.y += yVeloc;
-			}
+            if (yVeloc < branchSpeed)
+            {
+                yVeloc += .04f;
+            }
+            p.x = currentBranch.GetComponent<Branch_Parent>().getNextPosition(transform.position.y);
+			p.y += yVeloc;
 		}
 		transform.position = p;
-		Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
 	}
 
 	void OnTriggerEnter2D(Collider2D col)
