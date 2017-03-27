@@ -37,15 +37,13 @@ public class SnakeController : MonoBehaviour {
         var diffX = (mousePos.x - p.x) / mouseDamper;
         var diffY = (mousePos.y - p.y) / mouseDamper;
 
-        drawTrajectory(mousePos, diffX, diffY);
+        drawTrajectory(diffX, diffY);
 
         if (!isJumping && Input.GetMouseButtonDown(0))
         {
             xVeloc = diffX;
             yVeloc = diffY;
             isJumping = true;
-            tragLine.SetPosition(0, Vector3.zero);
-            tragLine.SetPosition(1, Vector3.zero);
         }
         
         Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
@@ -86,12 +84,10 @@ public class SnakeController : MonoBehaviour {
 		}
 	}
 
-	void drawTrajectory(Vector2 mousePos, float diffX, float diffY)
+	void drawTrajectory(float diffX, float diffY)
 	{
-
-		int v = 30; // number of vertices
-
-		tragLine.SetVertexCount (v);
+        
+		tragLine.numPositions = 30;
 
 		var xDist = diffX;
 		var yDist = diffY;
@@ -101,7 +97,7 @@ public class SnakeController : MonoBehaviour {
 		var firstPoint = new Vector2 (nextX, nextY);
 		tragLine.SetPosition (0, firstPoint);
 
-		for (int i = 1; i < v; i++) {
+		for (int i = 1; i < tragLine.numPositions; i++) {
 			for (int j = 0; j < 4; j++) {
 				nextX += xDist;
 				nextY += yDist;
@@ -109,7 +105,6 @@ public class SnakeController : MonoBehaviour {
 			}
 			var nextDot = new Vector2 (nextX, nextY);
 			tragLine.SetPosition (i, nextDot);
-			//trag = Vector2.Lerp (trag, nextDot, t);
 		}
 
 
