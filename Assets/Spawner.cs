@@ -13,22 +13,26 @@ public class Spawner : MonoBehaviour {
 		//Initialize Starting Branches
 		for (int i=0; i<3; i++) {
 			//First Branch appears on starting screen
-			branches [i*3] = (GameObject)Instantiate (Resources.Load ("branch_straight"));
+			branches [i*3] = (GameObject)Instantiate (Resources.Load ("Branch"));
+			branches [i*3].AddComponent<BranchStraight> (); 
 			Vector3 bPos = branches [i*3].transform.position;
 			bPos.x = (i-1)*5;
+			bPos.y = -5;
 			branches [i*3].transform.position = bPos;
 			branches [i*3].GetComponent<BranchStraight> ().Init (bPos);
 
 			//Use getEndPosition() to get the location to put the next branch
-			branches [i*3+1] = (GameObject)Instantiate (Resources.Load ("branch_straight"));
+			branches [i*3+1] = (GameObject)Instantiate (Resources.Load ("Branch"));
+			branches [i*3+1].AddComponent<BranchCurveLeft> ();
 			bPos = branches [i*3].GetComponent<Branch_Parent> ().getEndPosition ();
 			branches [i*3+1].transform.position = bPos;
-			branches [i*3+1].GetComponent<BranchStraight> ().Init (bPos);
+			branches [i*3+1].GetComponent<BranchCurveLeft> ().Init (bPos);
 
-			branches [i*3+2] = (GameObject)Instantiate (Resources.Load ("branch_straight"));
+			branches [i*3+2] = (GameObject)Instantiate (Resources.Load ("Branch"));
+			branches [i*3+2].AddComponent<BranchCurveLeft> ();
 			bPos = branches [i*3+1].GetComponent<Branch_Parent> ().getEndPosition ();
 			branches [i*3+2].transform.position = bPos;
-			branches [i*3+2].GetComponent<BranchStraight> ().Init (bPos);
+			branches [i*3+2].GetComponent<BranchCurveLeft> ().Init (bPos);
 		}
 		branches [3].GetComponent<Branch_Parent> ().isCollidable = false;
 		player.GetComponent<SnakeController> ().currentBranch = branches[3];
@@ -42,13 +46,13 @@ public class Spawner : MonoBehaviour {
 			if (end.y < camera_bottom) {
 				ReplaceBranch (i);
 			}
-					
 		}
 	}
 
 	void ReplaceBranch(int i) {
 		GameObject old = branches [i];
-		branches[i] = (GameObject)Instantiate (Resources.Load ("branch_straight"));
+		branches[i] = (GameObject)Instantiate (Resources.Load ("Branch"));
+		branches [i].AddComponent<BranchStraight> ();
 		Destroy (old);
 		int last_index;
 		switch (i) {
@@ -69,5 +73,4 @@ public class Spawner : MonoBehaviour {
 		branches [i].transform.position = bPos;
 		branches [i].GetComponent<BranchStraight>().Init (bPos);
 	}
-
 }

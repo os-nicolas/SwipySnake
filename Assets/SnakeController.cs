@@ -11,8 +11,8 @@ public class SnakeController : MonoBehaviour {
     public float		camHeight;
 	public float 		camWidth;
 	public float 		gravity;
-	public LineRenderer tragLine;		//Draws Jump Tragectory Line
-	//public Vector2[] 	tragectory;
+	public LineRenderer tragLine;			//Draws Jump Tragectory Line
+	public int			collisionCooldown;	//Cooldown Timer avoids collisions immediately after jumping
 
 	void Start () {
 		mouseDamper = 50f;
@@ -20,14 +20,17 @@ public class SnakeController : MonoBehaviour {
 		xVeloc = 0f;
 		yVeloc = 0f;
 		gravity = .001f;
+		collisionCooldown = 0;
 		tragLine 	  = this.GetComponent<LineRenderer>();
-		tragLine.SetColors (new Color (1f, 1f, 0f, .75f), new Color (1f, 1f, 0f, 0f));
-		tragLine.SetWidth (.15f, .15f);
     }
 
     // drawing and input in update
-    void Update()
-    {
+    void Update() {
+
+		if (collisionCooldown > 0) {
+			collisionCooldown--;
+		}
+
         var p = transform.position;
 
         var mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
@@ -43,6 +46,7 @@ public class SnakeController : MonoBehaviour {
             xVeloc = diffX;
             yVeloc = diffY;
             isJumping = true;
+			collisionCooldown = 5;
         }
         
         Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
@@ -57,11 +61,10 @@ public class SnakeController : MonoBehaviour {
 			yVeloc -= gravity;
 			p.x += xVeloc;
 			p.y += yVeloc;
-		}else {
+		} else {
             var branch = currentBranch.GetComponent<Branch_Parent>();
             var branchSpeed = branch.branchSpeed;
-            if (branchVeloc < branchSpeed)
-            {
+            if (branchVeloc < branchSpeed) {
                 branchVeloc = ((branchVeloc * 9f) + branchSpeed)/10f;
             }
             p = currentBranch.GetComponent<Branch_Parent>().getNextPosition(p, branchVeloc);
@@ -69,25 +72,26 @@ public class SnakeController : MonoBehaviour {
 		transform.position = p;
 	}
 
-	void OnTriggerEnter2D(Collider2D col)
-	{
-		Debug.Log ("Collision with " + col.name);
-		if (col.gameObject.GetComponent<Branch_Parent>() != null &&
-			col.gameObject.GetComponent<Branch_Parent>().isCollidable == true) {
-			Debug.Log ("Collision Succeeded!");
-			//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
-			col.gameObject.GetComponent<Branch_Parent>().isCollidable = false;
-			currentBranch.GetComponent<Branch_Parent> ().isCollidable = true;
-			currentBranch = col.gameObject;
-            branchVeloc = 0;
-            isJumping = false;
+	void OnTriggerEnter2D(Collider2D col) {
+		if (/*isJumping==true &&*/ collisionCooldown == 0) {
+			Debug.Log ("Collision with " + col.name);
+			if (col.gameObject.GetComponent<Branch_Parent> () != null &&
+			    col.gameObject.GetComponent<Branch_Parent> ().isCollidable == true) {
+				Debug.Log ("Collision Succeeded! " + transform.position.x + transform.position.y);
+				//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
+				col.gameObject.GetComponent<Branch_Parent> ().isCollidable = false;
+				currentBranch.GetComponent<Branch_Parent> ().isCollidable = true;
+				currentBranch = col.gameObject;
+				branchVeloc = 0;
+				isJumping = false;
+				collisionCooldown = 5;
+			}
 		}
 	}
 
-	void drawTrajectory(float diffX, float diffY)
-	{
-        
-		tragLine.numPositions = 30;
+	void drawTrajectory(float diffX, float diffY) {
+		var numPositions = 30;
+		tragLine.SetVertexCount (numPositions);
 
 		var xDist = diffX;
 		var yDist = diffY;
@@ -97,7 +101,7 @@ public class SnakeController : MonoBehaviour {
 		var firstPoint = new Vector2 (nextX, nextY);
 		tragLine.SetPosition (0, firstPoint);
 
-		for (int i = 1; i < tragLine.numPositions; i++) {
+		for (int i = 1; i < numPositions; i++) {
 			for (int j = 0; j < 4; j++) {
 				nextX += xDist;
 				nextY += yDist;
@@ -106,8 +110,5 @@ public class SnakeController : MonoBehaviour {
 			var nextDot = new Vector2 (nextX, nextY);
 			tragLine.SetPosition (i, nextDot);
 		}
-
-
 	}
-		
 }
