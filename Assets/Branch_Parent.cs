@@ -39,12 +39,13 @@ public abstract class Branch_Parent : MonoBehaviour {
 	public Vector2 getNextPosition(Vector2 pos, float velocity) {
         var next = default(Vector2);
         //var last = default(Vector2);
-		var closestDistance = 99999f;
+		var closestDistance = float.MaxValue;
 
 		for (int i = 0; i < player_path.Length - 1; i++) {
 			var distL = (player_path [i] - pos).magnitude;
 			if (distL < closestDistance) {
-				next = player_path [i + 1];
+                closestDistance = distL;
+                next = player_path [i + 1];
 			}
 		}
 
