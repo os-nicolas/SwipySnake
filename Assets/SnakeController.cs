@@ -12,9 +12,10 @@ public class SnakeController : MonoBehaviour {
 	public float 		camWidth;
 	public float 		gravity;
 	public LineRenderer tragLine;			//Draws Jump Tragectory Line
-	public int			collisionCooldown;	//Cooldown Timer avoids collisions immediately after jumping
+	public int			collisionCooldown;  //Cooldown Timer avoids collisions immediately after jumping
+    private float diffY, diffX;
 
-	void Start () {
+    void Start () {
 		mouseDamper = 50f;
 		isJumping = false;
 		xVeloc = 0f;
@@ -36,10 +37,9 @@ public class SnakeController : MonoBehaviour {
         var mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
-        var diffX = (mousePos.x - p.x) / mouseDamper;
-        var diffY = (mousePos.y - p.y) / mouseDamper;
+        diffX = (mousePos.x - p.x) / mouseDamper;
+        diffY = (mousePos.y - p.y) / mouseDamper;
 
-        drawTrajectory(diffX, diffY);
 
         if (!isJumping && Input.GetMouseButtonDown(0))
         {
@@ -49,13 +49,13 @@ public class SnakeController : MonoBehaviour {
 			collisionCooldown = 5;
         }
         
-        Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
     }
     
     // we do movement in FixedUpdate
     void FixedUpdate () {
-
         var p = transform.position;
+        
+        Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
 
         if (isJumping) {
 			yVeloc -= gravity;
@@ -69,8 +69,10 @@ public class SnakeController : MonoBehaviour {
             }
             p = currentBranch.GetComponent<Branch_Parent>().getNextPosition(p, branchVeloc);
 		}
-		transform.position = p;
-	}
+
+        transform.position = p;
+        drawTrajectory(diffX, diffY);
+    }
 
 	void OnTriggerEnter2D(Collider2D col) {
 		if (/*isJumping==true &&*/ collisionCooldown == 0) {
