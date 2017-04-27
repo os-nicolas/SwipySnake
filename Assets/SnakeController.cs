@@ -23,6 +23,7 @@ public class SnakeController : MonoBehaviour {
 		gravity = .001f;
 		collisionCooldown = 0;
 		tragLine 	  = this.GetComponent<LineRenderer>();
+        tragLine.endColor = new Color(0, 0, 0, 0);
     }
 
     // drawing and input in update
@@ -57,11 +58,14 @@ public class SnakeController : MonoBehaviour {
         
         Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
 
+        p.x += xVeloc;
+        p.y += yVeloc;
+
         if (isJumping) {
 			yVeloc -= gravity;
-			p.x += xVeloc;
-			p.y += yVeloc;
 		} else {
+            xVeloc *= .9f;
+            yVeloc *= .9f;
             var branch = currentBranch.GetComponent<Branch_Parent>();
             var branchSpeed = branch.branchSpeed;
             if (branchVeloc < branchSpeed) {
@@ -100,7 +104,7 @@ public class SnakeController : MonoBehaviour {
 		var nextX = transform.position.x;
 		var nextY = transform.position.y;
 
-		var firstPoint = new Vector2 (nextX, nextY);
+		var firstPoint = new Vector3 (nextX, nextY,1);
 		tragLine.SetPosition (0, firstPoint);
 
 		for (int i = 1; i < numPositions; i++) {
@@ -109,7 +113,7 @@ public class SnakeController : MonoBehaviour {
 				nextY += yDist;
 				yDist -= gravity;
 			}
-			var nextDot = new Vector2 (nextX, nextY);
+			var nextDot = new Vector3 (nextX, nextY,1);
 			tragLine.SetPosition (i, nextDot);
 		}
 	}
