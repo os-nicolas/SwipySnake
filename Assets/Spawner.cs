@@ -50,9 +50,14 @@ public class Spawner : MonoBehaviour {
 	}
 
 	void ReplaceBranch(int i) {
+		var rand = Random.Range (0, 2);
+		Debug.Log (rand);
 		GameObject old = branches [i];
 		branches[i] = (GameObject)Instantiate (Resources.Load ("Branch"));
-		branches [i].AddComponent<BranchStraight> ();
+		if (rand < .5)
+			branches [i].AddComponent<BranchStraight> ();
+		else
+			branches [i].AddComponent<BranchCurveLeft> ();
 		Destroy (old);
 		int last_index;
 		switch (i) {
@@ -71,6 +76,11 @@ public class Spawner : MonoBehaviour {
 		}
 		Vector3 bPos = branches [last_index].GetComponent<Branch_Parent> ().getEndPosition ();
 		branches [i].transform.position = bPos;
-		branches [i].GetComponent<BranchStraight>().Init (bPos);
+		if (rand < .5) {
+			branches [i].GetComponent<BranchStraight> ().Init (bPos);
+		}
+		else {
+			branches [i].GetComponent<BranchCurveLeft> ().Init (bPos);
+		}
 	}
 }

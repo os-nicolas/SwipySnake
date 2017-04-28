@@ -36,7 +36,7 @@ public abstract class Branch_Parent : MonoBehaviour {
 	// return false if branch needs to be destroyed
 
 	//Return the next position for the snake
-	public Vector2 getNextPosition(Vector2 pos, float velocity) {
+	public Vector2 getNextPosition(Vector2 pos, float velocity/*, Quaternion snakeAngle*/) {
         var next = default(Vector2);
         //var last = default(Vector2);
 		var closestDistance = 99999f;
@@ -45,11 +45,12 @@ public abstract class Branch_Parent : MonoBehaviour {
 			var distL = (player_path [i] - pos).magnitude;
 			if (distL < closestDistance) {
 				next = player_path [i + 1];
+				closestDistance = distL;
 			}
 		}
 
 		//Move character towards next point
-        var direction = (next - pos).normalized;
+		var direction = (next - pos).normalized;
         return new Vector2(pos.x,pos.y) + (velocity * direction);
 
 
