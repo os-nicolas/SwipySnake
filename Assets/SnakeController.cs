@@ -15,8 +15,9 @@ public class SnakeController : MonoBehaviour {
 	public int			collisionCooldown;	//Cooldown Timer avoids collisions immediately after jumping
 	public int			wigglePhase;
 	public float[]		wiggleAngles;
+    private float diffY, diffX;
 
-	void Start () {
+    void Start () {
 		mouseDamper = 50f;
 		isJumping = false;
 		xVeloc = 0f;
@@ -24,12 +25,10 @@ public class SnakeController : MonoBehaviour {
 		gravity = .001f;
 		collisionCooldown = 0;
 		wigglePhase = 0;
-		//wiggleAngles = new float[20] {0f, .25f, .5f, .75f, 1f, 1.25f, 1.5f, 1.75f, 2f, 2.25f, 2.5f,
-		//							  2.25f, 2f, 1.75f, 1.5f, 1.25f, 1f, .75f, .5f, .25f};
 		wiggleAngles = new float[24] {0f, .25f, .5f, .75f, 1f, 1.25f, 1.5f, 1.25f, 1f, .75f, .5f, .25f,
 									  0f, -.25f, -.5f, -.75f, -1f, -1.25f, -1.5f, -1.25f, -1f, -.75f, -.5f, -.25f,};
-		//wiggleAngles = new float[6] {0f, .5f, 1f, 1.5f, 1f, .5f};
 		tragLine 	  = this.GetComponent<LineRenderer>();
+        //tragLine.endColor = new Color(0, 0, 0, 0);
     }
 
     // drawing and input in update
@@ -44,10 +43,9 @@ public class SnakeController : MonoBehaviour {
         var mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
-        var diffX = (mousePos.x - p.x) / mouseDamper;
-        var diffY = (mousePos.y - p.y) / mouseDamper;
+        diffX = (mousePos.x - p.x) / mouseDamper;
+        diffY = (mousePos.y - p.y) / mouseDamper;
 
-        drawTrajectory(diffX, diffY);
 
         if (!isJumping && Input.GetMouseButtonDown(0))
         {
@@ -57,31 +55,36 @@ public class SnakeController : MonoBehaviour {
 			collisionCooldown = 5;
         }
         
-        Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
     }
     
     // we do movement in FixedUpdate
     void FixedUpdate () {
-
         var p = transform.position;
+        
+        Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
+
+        p.x += xVeloc;
+        p.y += yVeloc;
 
         if (isJumping) {
 			yVeloc -= gravity;
-			p.x += xVeloc;
-			p.y += yVeloc;
 		} else {
+            xVeloc *= .9f;
+            yVeloc *= .9f;
             var branch = currentBranch.GetComponent<Branch_Parent>();
             var branchSpeed = branch.branchSpeed;
             if (branchVeloc < branchSpeed) {
                 branchVeloc = ((branchVeloc * 9f) + branchSpeed)/10f;
             }
             p = currentBranch.GetComponent<Branch_Parent>().getNextPosition(p, branchVeloc);
-			p = Quaternion.Euler (0, 0, wiggleAngles [wigglePhase] / p.magnitude) * p;
+			p = Quaternion.Euler (0, 0, wiggleAngles [wigglePhase] * 2 / p.magnitude) * p;
 			incrementSnakeAngle ();
 
 		}
-		transform.position = p;
-	}
+
+        transform.position = p;
+        drawTrajectory(diffX, diffY);
+    }
 
 	void OnTriggerEnter2D(Collider2D col) {
 		if (/*isJumping==true &&*/ collisionCooldown == 0) {
@@ -107,7 +110,7 @@ public class SnakeController : MonoBehaviour {
 		var nextX = transform.position.x;
 		var nextY = transform.position.y;
 
-		var firstPoint = new Vector2 (nextX, nextY);
+		var firstPoint = new Vector3 (nextX, nextY,1);
 		tragLine.SetPosition (0, firstPoint);
 
 		for (int i = 1; i < numPositions; i++) {
@@ -116,14 +119,13 @@ public class SnakeController : MonoBehaviour {
 				nextY += yDist;
 				yDist -= gravity;
 			}
-			var nextDot = new Vector2 (nextX, nextY);
+			var nextDot = new Vector3 (nextX, nextY,1);
 			tragLine.SetPosition (i, nextDot);
 		}
 	}
 		
 	void incrementSnakeAngle() {
 		wigglePhase++;
-
 		if (wigglePhase >= wiggleAngles.Length)
 			wigglePhase = 0;
 	}
