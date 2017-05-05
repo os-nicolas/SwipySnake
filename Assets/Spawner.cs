@@ -5,10 +5,12 @@ public class Spawner : MonoBehaviour {
 
 	public GameObject player;
 	public GameObject[] branches;
+	public GameObject fire;
 
 	// Use this for initialization
 	void Start () {
 		player = Instantiate(Resources.Load("Snake")) as GameObject;
+		fire = Instantiate (Resources.Load ("FireLine")) as GameObject;
 		branches = new GameObject[9];
 		//Initialize Starting Branches
 		for (int i=0; i<3; i++) {
@@ -41,11 +43,24 @@ public class Spawner : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float camera_bottom = Camera.main.transform.position.y - Camera.main.orthographicSize;
+		if (player.GetComponent<SnakeController> ().die == true) {
+			ResetGame ();
+		}
 		for (int i=0; i<9; i++) {
 			Vector2 end = branches[i].GetComponent<Branch_Parent> ().getEndPosition ();
 			if (end.y < camera_bottom) {
 				ReplaceBranch (i);
 			}
+		}
+		Vector3 firepos = fire.transform.position;
+		if (firepos.y < camera_bottom + 2) {
+			firepos.y = camera_bottom + 2;
+		} else {
+			firepos.y += .02f;
+		}
+		fire.transform.position = firepos;
+		if (player.transform.position.y < firepos.y) {
+			ResetGame ();
 		}
 	}
 
@@ -82,5 +97,14 @@ public class Spawner : MonoBehaviour {
 		else {
 			branches [i].GetComponent<BranchCurveLeft> ().Init (bPos);
 		}
+	}
+
+	void ResetGame() {
+		Destroy (player);
+		Destroy (fire);
+		for (int i = 0; i < 9; i++) {
+			Destroy (branches [i]);
+		}
+		Start ();
 	}
 }

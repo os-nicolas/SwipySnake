@@ -16,8 +16,12 @@ public class SnakeController : MonoBehaviour {
 	public int			wigglePhase;
 	public float[]		wiggleAngles;
     private float diffY, diffX;
+	public bool 		die;
+	public bool			lockCameraX;
 
     void Start () {
+		lockCameraX = false;
+		die = false;
 		mouseDamper = 50f;
 		isJumping = false;
 		xVeloc = 0f;
@@ -53,6 +57,7 @@ public class SnakeController : MonoBehaviour {
             yVeloc = diffY;
             isJumping = true;
 			collisionCooldown = 5;
+			//lockCameraX = false; This was a bit jolting so I moved it to the Fixed Update
         }
         
     }
@@ -60,15 +65,20 @@ public class SnakeController : MonoBehaviour {
     // we do movement in FixedUpdate
     void FixedUpdate () {
         var p = transform.position;
-        
-        Camera.main.gameObject.transform.position = new Vector3(p.x, p.y, -10);
+		if (lockCameraX) {
+			Camera.main.gameObject.transform.position = new Vector3 (Camera.main.gameObject.transform.position.x, p.y, -10);
+		} else {
+			Camera.main.gameObject.transform.position = new Vector3 (p.x, p.y, -10);
+		}
 
         p.x += xVeloc;
         p.y += yVeloc;
 
         if (isJumping) {
 			yVeloc -= gravity;
+			lockCameraX = false;
 		} else {
+			lockCameraX = true;
             xVeloc *= .9f;
             yVeloc *= .9f;
             var branch = currentBranch.GetComponent<Branch_Parent>();
