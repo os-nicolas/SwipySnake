@@ -16,16 +16,14 @@ public class BranchStraight : Branch_Parent {
 	public override void Init(Vector3 p) {
 		line = this.GetComponent<LineRenderer>();
 		collider = this.GetComponent<EdgeCollider2D> ();
-		//line.numPositions =  10;
-		line.SetVertexCount(10);
-		//p.y += 4;
+        var count = 10;
+		line.SetVertexCount(count);
 		transform.position = p;
 		Vector2 pos = new Vector2(p.x, p.y);
-		//pos.y -= 8;
-		player_path = new Vector2[10];
-		Vector2[] collider_path = new Vector2[10];
-		Vector3[] line_path = new Vector3[10];
-		for (int i = 0; i < 10; i++) {
+		player_path = new Vector2[count];
+		Vector2[] collider_path = new Vector2[count];
+		Vector3[] line_path = new Vector3[count];
+		for (int i = 0; i < count; i++) {
 			player_path [i] = pos;
 			line_path [i] = new Vector3 (pos.x, pos.y, 2);
 			collider_path [i] = transform.InverseTransformPoint (line_path[i]);

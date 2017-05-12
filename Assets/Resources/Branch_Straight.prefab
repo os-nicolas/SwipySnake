@@ -130,7 +130,7 @@ LineRenderer:
       rgba: 4278222592
     m_EndColor:
       serializedVersion: 2
-      rgba: 4278222848
+      rgba: 4278206102
   m_UseWorldSpace: 1
 --- !u!212 &212000012033262196
 SpriteRenderer:

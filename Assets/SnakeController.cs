@@ -77,7 +77,7 @@ public class SnakeController : MonoBehaviour {
 			yVeloc -= gravity;
             transform.position = wiggleController.UnWiggle(centerPos);
         } else {
-            xVeloc *= .9f;
+            xVeloc *= .6f;
             yVeloc *= .9f;
             var branch = currentBranch.GetComponent<Branch_Parent>();
             var branchSpeed = branch.branchSpeed;
@@ -100,6 +100,7 @@ public class SnakeController : MonoBehaviour {
         //private readonly float period = 30;
         private readonly float amplitude = .5f;
         private float effect = 0;
+        private int ticks = 0;
 
         public WiggleController() {
         }
@@ -117,14 +118,13 @@ public class SnakeController : MonoBehaviour {
             effect = (10 + effect) / 11f;
             var diff = (p - lastp).normalized;
             var ms = DateTime.Now.Millisecond;
-            var angle = (ms / 1000f) * 2 * Mathf.PI;
-            //var mag = last.magnitude;
-            //var angle = Mathf.Asin(mag/amplitude) + (Math.PI*2)/period;
+            ticks++;
+            var angle = (ticks%30)  * 2 * Mathf.PI/30f;
             var nextMag = Mathf.Sin((float)angle) * amplitude;
             var target = new Vector3(-diff.y * nextMag, diff.x * nextMag,0);
             var lastlast = last;
             last = target;
-            return p + ((target + lastlast )/ 2f);
+            return p + effect*((target + lastlast )/ 2f);
         }
     }
 

@@ -60,7 +60,7 @@ public class Spawner : MonoBehaviour {
 		}
 		fire.transform.position = firepos;
 		if (player.transform.position.y < firepos.y) {
-			ResetGame ();
+			//ResetGame ();
 		}
 	}
 
