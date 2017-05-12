@@ -5,6 +5,7 @@ public class Spawner : MonoBehaviour {
 
 	public GameObject player;
 	public GameObject[] branches;
+	public GameObject[] obstacles;
 	public GameObject fire;
 
 	// Use this for initialization
@@ -60,7 +61,7 @@ public class Spawner : MonoBehaviour {
 		}
 		fire.transform.position = firepos;
 		if (player.transform.position.y < firepos.y) {
-			//ResetGame ();
+			ResetGame ();
 		}
 	}
 
@@ -97,6 +98,7 @@ public class Spawner : MonoBehaviour {
 		else {
 			branches [i].GetComponent<BranchCurveLeft> ().Init (bPos);
 		}
+		branches [i].GetComponent<Branch_Parent> ().addObstacles (.2f);
 	}
 
 	void ResetGame() {

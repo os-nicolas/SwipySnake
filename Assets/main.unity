@@ -206,6 +206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   branches: []
+  obstacles: []
   fire: {fileID: 0}
 --- !u!4 &878111172
 Transform:

@@ -129,7 +129,13 @@ public class SnakeController : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D col) {
-		if (/*isJumping==true &&*/ collisionCooldown == 0) {
+		Debug.Log (col.gameObject.name);
+
+		if (col.gameObject.name.StartsWith("Obstacle"))
+			die = true;
+		
+
+		else if (/*isJumping==true &&*/ collisionCooldown == 0) {
 			if (col.gameObject.GetComponent<Branch_Parent> () != null &&
 			    col.gameObject.GetComponent<Branch_Parent> ().isCollidable == true) {
 				//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;

@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
 
 public abstract class Branch_Parent : MonoBehaviour {
 
@@ -8,6 +7,7 @@ public abstract class Branch_Parent : MonoBehaviour {
 	public int age; // 0 => next, 1 => current, 2 => last
 	public bool isCollidable;
     public float branchSpeed = .1f;
+	public GameObject[] obstacles; 
 	/*
 	public bool toNextBranch =  false;
 	public GameObject nextBranch;
@@ -17,6 +17,7 @@ public abstract class Branch_Parent : MonoBehaviour {
 	public Branch_Parent() {
 		age = 0;
 		isCollidable = true;
+		obstacles = new GameObject[5];
 	}
 
 
@@ -67,6 +68,29 @@ public abstract class Branch_Parent : MonoBehaviour {
 
 	public Vector2 getEndPosition() {
 		return player_path [player_path.Length-1];
+	}
+
+	/*
+	void OnDestroy() {
+		foreach (GameObject g in obstacles)
+			Destroy (g);
+	}
+	*/
+
+	public void addObstacles(float probability) {
+		
+		int count = 0;
+		int spacing = 0;
+		for (int i=0; i<player_path.Length; i++) {
+			spacing++;
+			if (spacing == 5 && Random.value < probability && count<5) {
+				count++;
+				spacing = 0;
+				obstacles[count] = (GameObject)Instantiate (Resources.Load ("Obstacle"));
+				obstacles [count].transform.position = player_path[i];
+			}
+		}
+
 	}
     
 }
