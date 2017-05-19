@@ -67,7 +67,6 @@ public class Spawner : MonoBehaviour {
 
 	void ReplaceBranch(int i) {
 		var rand = Random.Range (0, 2);
-		Debug.Log (rand);
 		GameObject old = branches [i];
 		branches[i] = (GameObject)Instantiate (Resources.Load ("Branch"));
 		if (rand < .5)

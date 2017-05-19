@@ -51,6 +51,7 @@
      <Compile Include="Assets\Branch_Parent.cs" />
      <Compile Include="Assets\Obstacle.cs" />
      <Compile Include="Assets\SnakeController.cs" />
+     <Compile Include="Assets\SnakeTail.cs" />
      <Compile Include="Assets\Spawner.cs" />
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>

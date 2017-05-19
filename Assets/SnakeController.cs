@@ -18,6 +18,7 @@ public class SnakeController : MonoBehaviour {
 	public bool 		die;
     Vector3             centerPos;
     WiggleController    wiggleController;
+	GameObject			tail;
 
     void Start ()
     {
@@ -31,6 +32,12 @@ public class SnakeController : MonoBehaviour {
         tragLine = this.GetComponent<LineRenderer>();
         centerPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
         wiggleController = new WiggleController();
+		tail = Instantiate(Resources.Load("SnakeTail")) as GameObject;
+		Vector3[] tailPoints = new Vector3[10];
+		for (int i = 0; i < 10; i++) {
+			tailPoints[i] = new Vector3 (centerPos.x, centerPos.y - i);
+		}
+		tail.GetComponent<SnakeTail>().points = tailPoints;
         //tragLine.endColor = new Color(0, 0, 0, 0);
     }
 
@@ -89,7 +96,7 @@ public class SnakeController : MonoBehaviour {
 
             transform.position = wiggleController.Wiggle(centerPos, lastp);
    		}
-
+		tail.GetComponent<SnakeTail> ().retraceTail (transform.position);
         drawTrajectory(diffX, diffY);
     }
 
@@ -129,7 +136,6 @@ public class SnakeController : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D col) {
-		Debug.Log (col.gameObject.name);
 
 		if (col.gameObject.name.StartsWith("Obstacle"))
 			die = true;
@@ -171,5 +177,8 @@ public class SnakeController : MonoBehaviour {
 		}
 	}
 		
-
+	void OnDestroy() {
+		Destroy (tail);
+		Debug.Log ("Destroying Tail");
+	}
 }
