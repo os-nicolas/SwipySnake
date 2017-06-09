@@ -64,7 +64,7 @@ public abstract class Branch_Parent : MonoBehaviour {
     /// must be called before the branch can be used
     /// </summary>
     /// <param name="p">position of the branch</param>
-    public abstract void Init(Vector3 p);
+    //public abstract void Init(Vector3 p);
 
 	public Vector2 getEndPosition() {
 		return player_path [player_path.Length-1];

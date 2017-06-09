@@ -13,7 +13,7 @@ public class BranchCurveLeft : Branch_Parent {
 	}
 
 
-	public override void Init(Vector3 p) {
+	public void Init(Vector3 p) {
 		line = this.GetComponent<LineRenderer>();
 		collider = this.GetComponent<EdgeCollider2D> ();
         var count = 100;

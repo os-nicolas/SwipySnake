@@ -47,6 +47,7 @@
   <ItemGroup>
      <Compile Include="Assets\BranchController.cs" />
      <Compile Include="Assets\BranchCurveLeft.cs" />
+     <Compile Include="Assets\BranchSegment.cs" />
      <Compile Include="Assets\BranchStraight.cs" />
      <Compile Include="Assets\Branch_Parent.cs" />
      <Compile Include="Assets\Obstacle.cs" />

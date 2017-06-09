@@ -179,6 +179,5 @@ public class SnakeController : MonoBehaviour {
 		
 	void OnDestroy() {
 		Destroy (tail);
-		Debug.Log ("Destroying Tail");
 	}
 }
