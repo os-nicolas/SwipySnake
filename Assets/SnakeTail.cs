@@ -8,7 +8,7 @@ public class SnakeTail : MonoBehaviour {
 	public LineRenderer line;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		points = new Vector3 [10];
 		segmentLength = .2f;
 		line = this.GetComponent<LineRenderer> ();
@@ -57,8 +57,8 @@ public class SnakeTail : MonoBehaviour {
 				}
 			}
 		}
-		line.SetVertexCount (newPoints.Length);
-		line.SetPositions (newPoints);
+		this.line.SetVertexCount (newPoints.Length);
+		this.line.SetPositions (newPoints);
 		points = newPoints;
 		/*
 		for (int x = 0; x < 10; x++) {

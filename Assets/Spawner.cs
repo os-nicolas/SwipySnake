@@ -17,7 +17,7 @@ public class Spawner : MonoBehaviour {
 	void Start () {
 		
 		branches = new GameObject[9];
-		Vector3[][] branchGroup = new Vector3[3][];
+		Vector3[,] branchGroup = new Vector3[3, 2];
 		player = Instantiate(Resources.Load("Snake")) as GameObject;
 		fire = Instantiate (Resources.Load ("FireLine")) as GameObject;
 		//Initialize Starting Branches
@@ -42,11 +42,9 @@ public class Spawner : MonoBehaviour {
 
 
 			Vector3 endPos = branches [i+3].GetComponent<Branch_Parent> ().getEndPosition ();
-			Vector3[] startEnd = new Vector3[2];
-			startEnd [0] = endPos;
+			branchGroup [i, 0] = endPos;
 			endPos.y += 10;
-			startEnd [1] = endPos;
-			branchGroup [i] = startEnd;
+			branchGroup [i, 1] = endPos;
 
 			/*
 			branches [i*3+2] = (GameObject)Instantiate (Resources.Load ("Branch"));
@@ -69,7 +67,11 @@ public class Spawner : MonoBehaviour {
 		for (int i = 0; i < 3; i++) {
 			branches [i+6] = (GameObject)Instantiate (Resources.Load ("Branch"));
 			branches [i+6].AddComponent<BranchSegment> ();
-			branches [i+6].GetComponent<BranchSegment> ().Init (branchGroup [i]);
+			Vector3[] b = new Vector3[branchGroup.GetLength (1)];
+			for (int y = 0; y < branchGroup.GetLength (1); y++) {
+				b [y] = branchGroup [i, y];
+			}
+			branches [i+6].GetComponent<BranchSegment> ().Init (b);
 		}
 
 
@@ -131,66 +133,36 @@ public class Spawner : MonoBehaviour {
 			x = 3;
 			break;
 		}
-		Vector3[][] branchGroup = new Vector3[3] [];
+
+		Vector3[,] branchGroup = new Vector3[3, 2];
+		//Vector3[][] branchGroup = new Vector3[3][];
 		Vector3 p1 = branches [x].GetComponent<Branch_Parent> ().getEndPosition ();
 		Vector3 p2 = branches [x + 1].GetComponent<Branch_Parent> ().getEndPosition ();
 		Vector3 p3 = branches [x + 2].GetComponent<Branch_Parent> ().getEndPosition ();
 
-		branchGroup [0] [0] = p1;
-		branchGroup [1] [0] = p2;
-		branchGroup [2] [0] = p3;
+		branchGroup [0, 0] = p1;
+		branchGroup [1, 0] = p2;
+		branchGroup [2, 0] = p3;
 
 		p1.y += 10;
 		p2.y += 10;
 		p3.y += 10;
 
-		branchGroup [0] [1] = p1;
-		branchGroup [1] [0] = p2;
-		branchGroup [2] [1] = p3;
+		branchGroup [0, 1] = p1;
+		branchGroup [1, 1] = p2;
+		branchGroup [2, 1] = p3;
 
 
 		branchGroup = generatePaths (branchGroup, 4);
-		Vector3[][] branchGroup2 = new Vector3[3][];
 		for (int j = 0; j < 3; j++) {
-			branches [j+6] = (GameObject)Instantiate (Resources.Load ("Branch"));
-			branches [j+6].AddComponent<BranchSegment> ();
-			branches [j+6].GetComponent<BranchSegment> ().Init (branchGroup [j]);
+			branches [j+i] = (GameObject)Instantiate (Resources.Load ("Branch"));
+			branches [j+i].AddComponent<BranchSegment> ();
+			Vector3[] branchPoints = new Vector3[branchGroup.GetLength(1)];
+			for (int y = 0; y < branchGroup.GetLength(1); y++) {
+				branchPoints [y] = branchGroup [j, y];
+			}
+			branches [j+i].GetComponent<BranchSegment> ().Init (branchPoints);
 		}
-
-		/*
-		var rand = Random.Range (0, 2);
-		GameObject old = branches [i];
-		branches[i] = (GameObject)Instantiate (Resources.Load ("Branch"));
-		if (rand < .5)
-			branches [i].AddComponent<BranchStraight> ();
-		else
-			branches [i].AddComponent<BranchCurveLeft> ();
-		Destroy (old);
-		int last_index;
-		switch (i) {
-		case 0:
-			last_index = 2;
-			break;
-		case 3:
-			last_index = 5;
-			break;
-		case 6:
-			last_index = 8;
-			break;
-		default:
-			last_index = i - 1;
-			break;
-		}
-		Vector3 bPos = branches [last_index].GetComponent<Branch_Parent> ().getEndPosition ();
-		branches [i].transform.position = bPos;
-		if (rand < .5) {
-			branches [i].GetComponent<BranchStraight> ().Init (bPos);
-		}
-		else {
-			branches [i].GetComponent<BranchCurveLeft> ().Init (bPos);
-		}
-		branches [i].GetComponent<Branch_Parent> ().addObstacles (.2f);
-		*/
 	}
 
 	void ResetGame() {
@@ -203,17 +175,14 @@ public class Spawner : MonoBehaviour {
 	}
 
 	//Generates a path for each branch with start and end points
-	public Vector3[][] generatePaths(Vector3[][] branch_paths, int depth) {
+	public Vector3[,] generatePaths(Vector3[,] branch_paths, int depth) {
 		if (depth == 0)
 			return branch_paths;
 
-		var num_segs = branch_paths[0].Length;
-		var num_bran = branch_paths.Length;
+		var num_segs = branch_paths.GetLength(1);
+		var num_bran = branch_paths.GetLength(0);
 
-		Vector3[][] genPath = new Vector3[num_bran][];
-		for (int i = 0; i < num_bran; i++) {
-			genPath [i] = new Vector3[num_segs * 2 - 1]; 
-		}
+		Vector3[,] genPath = new Vector3[num_bran, num_segs * 2 - 1];
 
 		//Iterate over each point of the branches
 		for (int j = 0; j < num_segs-1; j++) {
@@ -221,20 +190,20 @@ public class Spawner : MonoBehaviour {
 			Vector3[] endPoints = new Vector3[num_bran];
 			//Get the start and endpoints for each branch on this segment
 			for (int i = 0; i < num_bran; i++) {
-				startPoints [i] = branch_paths [i] [j];
-				endPoints [i] = branch_paths [i] [j+1];
+				startPoints [i] = branch_paths [i, j];
+				endPoints [i] = branch_paths [i, j+1];
 			}
 			//Generate the midPoints for each branch together
 			Vector3[] midPoints = genMidPoints (startPoints, endPoints);
 
 			for (int i = 0; i < num_bran; i++) {
-				genPath [i] [2 * j] = branch_paths [i] [j];
-				genPath[i][2*j+1] = midPoints[i];
+				genPath [i, 2 * j] = branch_paths [i, j];
+				genPath[i, 2*j+1] = midPoints[i];
 			}
 		}
 		//Add in last point
 		for (int i = 0; i < num_bran; i++) {
-			genPath [i] [num_segs * 2 - 2] = branch_paths [i] [num_segs - 1];
+			genPath [i, num_segs * 2 - 2] = branch_paths [i, num_segs - 1];
 		}
 		//Recursion
 		return generatePaths (genPath, depth - 1);

@@ -75,7 +75,7 @@ public class SnakeController : MonoBehaviour {
 
     // we do movement in FixedUpdate
     void FixedUpdate () {
-			Camera.main.gameObject.transform.position = new Vector3 (centerPos.x, centerPos.y, -10);
+		Camera.main.gameObject.transform.position = new Vector3 (centerPos.x, centerPos.y, -10);
 
         centerPos.x += xVeloc;
         centerPos.y += yVeloc;
