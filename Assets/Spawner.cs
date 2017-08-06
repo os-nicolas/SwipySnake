@@ -99,6 +99,7 @@ public class Spawner : MonoBehaviour {
 			Vector2 end = branches[i*3].GetComponent<Branch_Parent> ().getEndPosition ();
 			if (end.y < camera_bottom) {
 				ReplaceBranches (i);
+				//Debug.Log ("Called ReplaceBranches on " + i + ", " + end.y + " < " + camera_bottom);
 			}
 		}
 		Vector3 firepos = fire.transform.position;
@@ -114,13 +115,16 @@ public class Spawner : MonoBehaviour {
 	}
 
 	void ReplaceBranches(int i) {
-		GameObject b1 = branches [i];
-		GameObject b2 = branches [i+1];
-		GameObject b3 = branches [i+2];
+		//i indicates the row, i.e. 0->[0,1,2] etc.
+		//Remove all of the branches from that row
+		GameObject b1 = branches [i*3];
+		GameObject b2 = branches [i*3+1];
+		GameObject b3 = branches [i*3+2];
 		Destroy (b1);
 		Destroy (b2);
 		Destroy (b3);
 
+		//x determines which branch row we are placing the new branches above
 		int x = -1;
 		switch (i) {
 		case 0:
@@ -134,34 +138,37 @@ public class Spawner : MonoBehaviour {
 			break;
 		}
 
+		//branchGroup is the new set of branches, starting at the endpoint of row x
 		Vector3[,] branchGroup = new Vector3[3, 2];
-		//Vector3[][] branchGroup = new Vector3[3][];
+
+		//Get the starting location for the new branches 
 		Vector3 p1 = branches [x].GetComponent<Branch_Parent> ().getEndPosition ();
 		Vector3 p2 = branches [x + 1].GetComponent<Branch_Parent> ().getEndPosition ();
 		Vector3 p3 = branches [x + 2].GetComponent<Branch_Parent> ().getEndPosition ();
 
+		//Set the initial start and end values of each branch
 		branchGroup [0, 0] = p1;
 		branchGroup [1, 0] = p2;
 		branchGroup [2, 0] = p3;
-
 		p1.y += 10;
 		p2.y += 10;
 		p3.y += 10;
-
 		branchGroup [0, 1] = p1;
 		branchGroup [1, 1] = p2;
 		branchGroup [2, 1] = p3;
 
+		//Call generatePaths to fill in the intermediary points
+		branchGroup = generatePaths (branchGroup, 2);
 
-		branchGroup = generatePaths (branchGroup, 4);
+		//Add the new branches to branches[]
 		for (int j = 0; j < 3; j++) {
-			branches [j+i] = (GameObject)Instantiate (Resources.Load ("Branch"));
-			branches [j+i].AddComponent<BranchSegment> ();
+			branches [i*3+j] = (GameObject)Instantiate (Resources.Load ("Branch"));
+			branches [i*3+j].AddComponent<BranchSegment> ();
 			Vector3[] branchPoints = new Vector3[branchGroup.GetLength(1)];
 			for (int y = 0; y < branchGroup.GetLength(1); y++) {
 				branchPoints [y] = branchGroup [j, y];
 			}
-			branches [j+i].GetComponent<BranchSegment> ().Init (branchPoints);
+			branches [i*3+j].GetComponent<BranchSegment> ().Init (branchPoints);
 		}
 	}
 
