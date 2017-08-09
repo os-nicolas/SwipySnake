@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public abstract class Branch_Parent : MonoBehaviour {
 
@@ -7,7 +8,8 @@ public abstract class Branch_Parent : MonoBehaviour {
 	public int age; // 0 => next, 1 => current, 2 => last
 	public bool isCollidable;
     public float branchSpeed = .1f;
-	public GameObject[] obstacles; 
+	public GameObject[] obstacles;
+    public Branch_Parent nextBranch;
 	/*
 	public bool toNextBranch =  false;
 	public GameObject nextBranch;
@@ -34,28 +36,68 @@ public abstract class Branch_Parent : MonoBehaviour {
 		age++;
 		return (age < 3);
 	}
-    
+
+    public float Distance(Vector3 a, Vector3 b) {
+        return Mathf.Sqrt(((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y)));
+    }
+
     /// <summary>
     /// Return the next position for the snake
     /// </summary>
     public Vector2 getNextPosition(Vector2 pos, float velocity) {
-        var next = default(Vector2);
         var closest = default(Vector2);
-        //var last = default(Vector2);
+        var next = default(Vector2);
+        var last = default(Vector2);
 		var closestDistance = float.MaxValue;
 
-		for (int i = 0; i < player_path.Length - 1; i++) {
-			var distL = (player_path [i] - pos).magnitude;
-			if (distL < closestDistance) {
-                closest = player_path[i];
-				next = player_path [i + 1];
-				closestDistance = distL;
-			}
-		}
 
-		//Move character towards next point
-		var direction = ((next - pos).normalized + (next- closest).normalized*1.1f).normalized;
+        var distL = default(float);
+
+        for (int i = 1; i < player_path.Length - 1; i++) {
+			distL = Distance(player_path [i],pos);
+            if (distL < closestDistance)
+            {
+                last = player_path[i - 1];
+                closest = player_path[i];
+                next = player_path[i + 1];
+                closestDistance = distL;
+            }
+        }
+
+        
+        if (nextBranch != null) {
+            distL = Distance(nextBranch.player_path[0],pos);
+            if (distL < closestDistance)
+            {
+
+                last = player_path[player_path.Length-2];
+                closest = nextBranch.player_path[0];
+                next = nextBranch.player_path[1];
+                closestDistance = distL;
+            }
+        }
+
+        var target = default(Vector2);
+        
+        distL = Distance(player_path[0], pos);
+        if (distL < closestDistance)
+        {
+            closest = player_path[0];
+            next = player_path[1];
+            closestDistance = distL;
+            target = next;
+        }
+        else {
+            var dNext = Distance(pos, next) / Distance(closest,next);
+            var dLast = Distance(pos, last) / Distance(closest, last);
+            target = dNext < dLast + .1f ? next : closest;
+        }
+        
+
+        //Move character towards next point
+        var direction = (target - pos).normalized;
         var move = velocity * direction;
+
         return new Vector2(pos.x,pos.y) + move;
 	}
 

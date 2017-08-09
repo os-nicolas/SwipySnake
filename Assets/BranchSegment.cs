@@ -26,7 +26,4 @@ public class BranchSegment : Branch_Parent {
 		line.SetPositions (line_path);
 		collider.points = collider_path;
 	}
-
-
-
 }

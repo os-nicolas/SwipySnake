@@ -22,6 +22,7 @@ public class SnakeController : MonoBehaviour {
 
     void Start ()
     {
+
         die = false;
         mouseDamper = 50f;
         isJumping = false;
@@ -93,7 +94,6 @@ public class SnakeController : MonoBehaviour {
             }
             var lastp = centerPos;
             centerPos = currentBranch.GetComponent<Branch_Parent>().getNextPosition(centerPos, branchVeloc);
-
             transform.position = wiggleController.Wiggle(centerPos, lastp);
    		}
 		tail.GetComponent<SnakeTail> ().retraceTail (transform.position);
@@ -104,16 +104,14 @@ public class SnakeController : MonoBehaviour {
     {
 
         Vector3 last = new Vector3(0, 0, 0);
-        //private readonly float period = 30;
-        private readonly float amplitude = .5f;
+        private readonly float period = 40;
+        private readonly float amplitude = .0f;//.5f;
         private float effect = 0;
         private int ticks = 0;
 
         public WiggleController() {
         }
-
-
-    
+        
         public Vector3 UnWiggle(Vector3 p)
         {
             effect *= .95f;
@@ -126,7 +124,7 @@ public class SnakeController : MonoBehaviour {
             var diff = (p - lastp).normalized;
             var ms = DateTime.Now.Millisecond;
             ticks++;
-            var angle = (ticks%30)  * 2 * Mathf.PI/30f;
+            var angle = (ticks% period)  * 2 * Mathf.PI/ period;
             var nextMag = Mathf.Sin((float)angle) * amplitude;
             var target = new Vector3(-diff.y * nextMag, diff.x * nextMag,0);
             var lastlast = last;

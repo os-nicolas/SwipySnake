@@ -162,6 +162,7 @@ public class Spawner : MonoBehaviour {
 
 		//Add the new branches to branches[]
 		for (int j = 0; j < 3; j++) {
+            var last = branches[x+j];
 			branches [i*3+j] = (GameObject)Instantiate (Resources.Load ("Branch"));
 			branches [i*3+j].AddComponent<BranchSegment> ();
 			Vector3[] branchPoints = new Vector3[branchGroup.GetLength(1)];
@@ -169,7 +170,8 @@ public class Spawner : MonoBehaviour {
 				branchPoints [y] = branchGroup [j, y];
 			}
 			branches [i*3+j].GetComponent<BranchSegment> ().Init (branchPoints);
-		}
+            last.GetComponent<BranchSegment>().nextBranch = branches[i * 3 + j].GetComponent<BranchSegment>();
+        }
 	}
 
 	void ResetGame() {
