@@ -5,6 +5,7 @@ public class BranchSegment : Branch_Parent {
 
 	LineRenderer line;
 	EdgeCollider2D collider;
+	GameObject topJoint;
 
 
 	public void Init(Vector3[] playerPath) {
@@ -25,5 +26,11 @@ public class BranchSegment : Branch_Parent {
 		line.SetVertexCount (line_path.Length);
 		line.SetPositions (line_path);
 		collider.points = collider_path;
+		topJoint = Instantiate(Resources.Load("BranchJoint")) as GameObject;
+		topJoint.transform.position = line_path [playerPath.Length-1];
+	}
+
+	void OnDestroy() {
+		Destroy (topJoint);
 	}
 }

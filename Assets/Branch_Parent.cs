@@ -31,7 +31,7 @@ public abstract class Branch_Parent : MonoBehaviour {
 	void Update () {
 
 	}
-
+		
 	public bool AgeUp() {
 		age++;
 		return (age < 3);

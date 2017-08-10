@@ -22,7 +22,6 @@ public class SnakeController : MonoBehaviour {
 
     void Start ()
     {
-
         die = false;
         mouseDamper = 50f;
         isJumping = false;
@@ -39,7 +38,6 @@ public class SnakeController : MonoBehaviour {
 			tailPoints[i] = new Vector3 (centerPos.x, centerPos.y - i);
 		}
 		tail.GetComponent<SnakeTail>().points = tailPoints;
-        //tragLine.endColor = new Color(0, 0, 0, 0);
     }
 
     // drawing and input in update

@@ -8,6 +8,7 @@ public class BranchStraight : Branch_Parent {
 	// Use this for initialization
 	LineRenderer line;
 	EdgeCollider2D collider;
+	GameObject topJoint;
 
 	public BranchStraight () {
 	}
@@ -32,5 +33,11 @@ public class BranchStraight : Branch_Parent {
 		line.SetPositions (line_path);
 		//collider.pointCount = line_path.Length; //this did not work
 		collider.points = collider_path;
+		topJoint = Instantiate(Resources.Load("BranchJoint")) as GameObject;
+		topJoint.transform.position = line_path [line_path.Length-1];
+	}
+
+	void OnDestroy() {
+		Destroy (topJoint);
 	}
 }

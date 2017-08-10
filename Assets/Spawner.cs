@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 // 6 7 8
 // 3 4 5
@@ -153,6 +154,18 @@ public class Spawner : MonoBehaviour {
 		p1.y += 10;
 		p2.y += 10;
 		p3.y += 10;
+		int randX1 = Random.Range (-5, 5);
+		int randX2;
+		int randX3;
+		do {
+			randX2 = Random.Range(-5, 5);
+		} while (Mathf.Abs(randX1-randX2) < 2);
+		do {
+			randX3 = Random.Range(-5, 5);
+		} while (Mathf.Abs(randX1-randX3) < 2 || Mathf.Abs(randX2-randX3) < 2);
+		p1.x = randX1;
+		p2.x = randX2;
+		p3.x = randX3;
 		branchGroup [0, 1] = p1;
 		branchGroup [1, 1] = p2;
 		branchGroup [2, 1] = p3;
@@ -185,11 +198,40 @@ public class Spawner : MonoBehaviour {
 
 	//Generates a path for each branch with start and end points
 	public Vector3[,] generatePaths(Vector3[,] branch_paths, int depth) {
-		if (depth == 0)
-			return branch_paths;
-
 		var num_segs = branch_paths.GetLength(1);
 		var num_bran = branch_paths.GetLength(0);
+		if (depth == 0) {
+			int curvedLength = (num_segs * 3) - 1;
+			Vector3[,] return_path = new Vector3[num_bran, curvedLength+1];
+			//Curve each branch path
+			for (int x = 0; x < num_bran; x++) {
+				List<Vector3> points;
+
+				List<Vector3> curvedPoints = new List<Vector3>(curvedLength);
+				float t = 0.0f;
+				for (int curvePoint = 0; curvePoint < curvedLength + 1; curvePoint++) {
+					t = Mathf.InverseLerp (0, curvedLength, curvePoint);
+					points = new List<Vector3> ();
+					for (int y = 0; y < num_segs; y++) {
+						points.Add (branch_paths [x, y]);
+					}
+					for (int j = num_segs - 1; j > 0; j--) {
+						for (int i = 0; i < j; i++){
+							points [i] = (1 - t) * points [i] + t * points [i + 1];
+						}
+					}
+					curvedPoints.Add (points [0]);
+				}
+
+				Vector3[] path_array = curvedPoints.ToArray ();
+				//Debug.Log (curvedLength);
+				//Debug.Log (path_array.Length);
+				for (int y = 0; y < path_array.Length; y++) {
+					return_path [x, y] = path_array [y];
+				}
+			}
+			return return_path;
+		}
 
 		Vector3[,] genPath = new Vector3[num_bran, num_segs * 2 - 1];
 
@@ -207,7 +249,7 @@ public class Spawner : MonoBehaviour {
 
 			for (int i = 0; i < num_bran; i++) {
 				genPath [i, 2 * j] = branch_paths [i, j];
-				genPath[i, 2*j+1] = midPoints[i];
+				genPath [i, 2*j+1] = midPoints[i];
 			}
 		}
 		//Add in last point
@@ -220,7 +262,7 @@ public class Spawner : MonoBehaviour {
 
 
 	public Vector3[] genMidPoints(Vector3[] startPoints, Vector3[] endPoints) {
-		Vector3[] midPoints = new Vector3[startPoints.Length];
+		Vector3[] midPoints = new Vector3[startPoints.Length * 3 - 1];
 
 		for (int i = 0; i < startPoints.Length; i++) {
 			Vector3 start = startPoints [i];
