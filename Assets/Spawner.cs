@@ -151,9 +151,10 @@ public class Spawner : MonoBehaviour {
 		branchGroup [0, 0] = p1;
 		branchGroup [1, 0] = p2;
 		branchGroup [2, 0] = p3;
-		p1.y += 10;
-		p2.y += 10;
-		p3.y += 10;
+        var SectionHeight = 20; 
+		p1.y += SectionHeight;
+		p2.y += SectionHeight;
+		p3.y += SectionHeight;
 		int randX1 = Random.Range (-5, 5);
 		int randX2;
 		int randX3;
@@ -171,7 +172,7 @@ public class Spawner : MonoBehaviour {
 		branchGroup [2, 1] = p3;
 
 		//Call generatePaths to fill in the intermediary points
-		branchGroup = generatePaths (branchGroup, 2);
+		branchGroup = generatePaths (branchGroup, 4);
 
 		//Add the new branches to branches[]
 		for (int j = 0; j < 3; j++) {
