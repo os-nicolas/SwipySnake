@@ -16,7 +16,7 @@ public class SnakeController : MonoBehaviour {
 	public int			collisionCooldown;	//Cooldown Timer avoids collisions immediately after jumping
     private float       diffY, diffX;
 	public bool 		die;
-    Vector3             centerPos;
+    public Vector3             centerPos;
     WiggleController    wiggleController;
 	GameObject			tail;
 
@@ -31,7 +31,7 @@ public class SnakeController : MonoBehaviour {
         collisionCooldown = 0;
         tragLine = this.GetComponent<LineRenderer>();
         centerPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-        wiggleController = new WiggleController();
+        //wiggleController = new WiggleController();
 		tail = Instantiate(Resources.Load("SnakeTail")) as GameObject;
 		Vector3[] tailPoints = new Vector3[10];
 		for (int i = 0; i < 10; i++) {
@@ -48,11 +48,15 @@ public class SnakeController : MonoBehaviour {
 		}
         
 
-        var mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        var mousePos = Input.mousePosition;
+		mousePos.z = 10;
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
+
+		Debug.Log (mousePos.x);
 
         diffX = (mousePos.x - centerPos.x) / mouseDamper;
         diffY = (mousePos.y - centerPos.y) / mouseDamper;
+
 
 
         if (!isJumping && Input.GetMouseButtonDown(0))
@@ -76,15 +80,18 @@ public class SnakeController : MonoBehaviour {
     void FixedUpdate () {
 		Camera.main.gameObject.transform.position = new Vector3 (centerPos.x, centerPos.y, -10);
 
-        centerPos.x += xVeloc;
-        centerPos.y += yVeloc;
+        
 
         if (isJumping) {
 			yVeloc -= gravity;
-            transform.position = wiggleController.UnWiggle(centerPos);
+			transform.position = centerPos;
+			centerPos.x += xVeloc;
+			centerPos.y += yVeloc;
+            //transform.position = wiggleController.UnWiggle(centerPos);
         } else {
-            xVeloc *= .6f;
-            yVeloc *= .9f;
+            //What was the purpose of these?
+			//xVeloc *= .6f;
+            //yVeloc *= .9f;
             var branch = currentBranch.GetComponent<Branch_Parent>();
             var branchSpeed = branch.branchSpeed;
             if (branchVeloc < branchSpeed) {
@@ -92,7 +99,8 @@ public class SnakeController : MonoBehaviour {
             }
             var lastp = centerPos;
             centerPos = currentBranch.GetComponent<Branch_Parent>().getNextPosition(centerPos, branchVeloc);
-            transform.position = wiggleController.Wiggle(centerPos, lastp);
+			transform.position = centerPos;
+            //transform.position = wiggleController.Wiggle(centerPos, lastp);
    		}
 		tail.GetComponent<SnakeTail> ().retraceTail (transform.position);
         drawTrajectory(diffX, diffY);
