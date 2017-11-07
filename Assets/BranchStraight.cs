@@ -26,7 +26,7 @@ public class BranchStraight : Branch_Parent {
 		Vector3[] line_path = new Vector3[count];
 		for (int i = 0; i < count; i++) {
 			player_path [i] = pos;
-			line_path [i] = new Vector3 (pos.x, pos.y, 2);
+			line_path [i] = new Vector3 (pos.x, pos.y, branchZ);
 			collider_path [i] = transform.InverseTransformPoint (line_path[i]);
 			pos.y += 1.75f;
 		}

@@ -18,9 +18,9 @@ public class BranchSegment : Branch_Parent {
 
 		for (int i = 0; i < playerPath.Length; i++) {
 			Vector3 path_point = playerPath [i];
-			path_point.z = 2;
+			path_point.z = branchZ;
 			line_path[i] = path_point;
-			player_path [i] = new Vector2 (path_point.x, path_point.y);
+			player_path [i] = new Vector3 (path_point.x, path_point.y,branchZ);
 			collider_path [i] = transform.InverseTransformPoint (path_point);
 		}
 		line.SetVertexCount (line_path.Length);

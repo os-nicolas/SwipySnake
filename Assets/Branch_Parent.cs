@@ -3,6 +3,7 @@ using System.Collections;
 using System.Linq;
 
 public abstract class Branch_Parent : MonoBehaviour {
+    public const float branchZ = 2;
 
 	public Vector2[] player_path;
 	public int age; // 0 => next, 1 => current, 2 => last
