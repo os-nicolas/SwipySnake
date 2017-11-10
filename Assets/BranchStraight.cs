@@ -1,20 +1,19 @@
-﻿using UnityEngine;
+﻿/*
+using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class BranchStraight : Branch_Parent {
+public class BranchStraight : BranchSegment {
 
-	//Vector3 p;
+	void Start() {
 
-	// Use this for initialization
-	LineRenderer line;
-	EdgeCollider2D collider;
-	GameObject topJoint;
-
-	public BranchStraight () {
 	}
-    
 
-	public void Init(Vector3 p) {
+
+
+}
+*/
+		/*
 		line = this.GetComponent<LineRenderer>();
 		collider = this.GetComponent<EdgeCollider2D> ();
         var count = 10;
@@ -37,7 +36,5 @@ public class BranchStraight : Branch_Parent {
 		topJoint.transform.position = line_path [line_path.Length-1];
 	}
 
-	void OnDestroy() {
-		Destroy (topJoint);
-	}
 }
+*/

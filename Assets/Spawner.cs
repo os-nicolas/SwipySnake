@@ -1,83 +1,32 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
 
 // 6 7 8
 // 3 4 5
 // 0 1 2
 
+/*NOTE: 
+ */
+
 //FIXME: No need for the tail to reinitialize, just move and reset it
 public class Spawner : MonoBehaviour {
 
 	public GameObject player;
-	public GameObject[] branches;
-	public GameObject[] obstacles;
 	public GameObject fire;
+	public GameObject branchCtrl;
 
 	// Use this for initialization
 	void Start () {
 		
-		branches = new GameObject[9];
-		Vector3[,] branchGroup = new Vector3[3, 2];
+
+		//Vector3[,] branchGroup = new Vector3[3, 2];
 		player = Instantiate(Resources.Load("Snake")) as GameObject;
 		fire = Instantiate (Resources.Load ("FireLine")) as GameObject;
-		//Initialize Starting Branches
-		for (int i=0; i<3; i++) {
-			//First Branch appears on starting screen
-			branches [i] = (GameObject)Instantiate (Resources.Load ("Branch"));
-			branches [i].AddComponent<BranchStraight> ();
-			Vector3 bPos = branches [i].transform.position;
-			bPos.x = (i-1)*5;
-			bPos.y = -5;
-			branches [i].transform.position = bPos;
-			branches [i].GetComponent<BranchStraight> ().Init (bPos);
-
-
-			//Use getEndPosition() to get the location to put the next branch
-			branches [i+3] = (GameObject)Instantiate (Resources.Load ("Branch"));
-			branches [i+3].AddComponent<BranchStraight> ();
-			bPos = branches [i].GetComponent<Branch_Parent> ().getEndPosition ();
-			branches [i+3].transform.position = bPos;
-			branches [i+3].GetComponent<BranchStraight> ().Init (bPos);
-
-
-
-			Vector3 endPos = branches [i+3].GetComponent<Branch_Parent> ().getEndPosition ();
-			branchGroup [i, 0] = endPos;
-			endPos.y += 10;
-			branchGroup [i, 1] = endPos;
-
-			/*
-			branches [i*3+2] = (GameObject)Instantiate (Resources.Load ("Branch"));
-			branches [i*3+2].AddComponent<BranchCurveLeft> ();
-			bPos = branches [i*3+1].GetComponent<Branch_Parent> ().getEndPosition ();
-			branches [i*3+2].transform.position = bPos;
-			branches [i*3+2].GetComponent<BranchCurveLeft> ().Init (bPos);
-			*/
-		}
-		branches [1].GetComponent<Branch_Parent> ().isCollidable = false;
-		player.GetComponent<SnakeController> ().currentBranch = branches[1];
-
-
-		branchGroup = generatePaths (branchGroup, 3);
-		/*
-		for (int i = 0; i < branchGroup [0].Length; i++) {
-			Debug.Log("branchgroup " + branchGroup[0][i]);
-		}
-		*/
-		for (int i = 0; i < 3; i++) {
-			branches [i+6] = (GameObject)Instantiate (Resources.Load ("Branch"));
-			branches [i+6].AddComponent<BranchSegment> ();
-			Vector3[] b = new Vector3[branchGroup.GetLength (1)];
-			for (int y = 0; y < branchGroup.GetLength (1); y++) {
-				b [y] = branchGroup [i, y];
-			}
-			branches [i+6].GetComponent<BranchSegment> ().Init (b);
-		}
-
-
-
-		player.GetComponent<SnakeController> ().currentBranch = branches [1];
+		branchCtrl = Instantiate (Resources.Load ("BranchCtrl")) as GameObject;
+		player.GetComponent<SnakeController> ().currentBranch = branchCtrl.GetComponent<BranchController> ().branches [1].GetComponent<Branch> ().segments.First();
 
 		/*
 		Vector3[][] paths = new Vector3[startPoints.Length] [2];
@@ -96,13 +45,7 @@ public class Spawner : MonoBehaviour {
 		if (player.GetComponent<SnakeController> ().die == true) {
 			ResetGame ();
 		}
-		for (int i=0; i<3; i++) {
-			Vector2 end = branches[i*3].GetComponent<Branch_Parent> ().getEndPosition ();
-			if (end.y < camera_bottom) {
-				ReplaceBranches (i);
-				//Debug.Log ("Called ReplaceBranches on " + i + ", " + end.y + " < " + camera_bottom);
-			}
-		}
+		branchCtrl.GetComponent<BranchController>().trimPaths(camera_bottom);
 		Vector3 firepos = fire.transform.position;
 		if (firepos.y < camera_bottom + 2) {
 			firepos.y = camera_bottom + 2;
@@ -115,7 +58,14 @@ public class Spawner : MonoBehaviour {
 		}
 	}
 
-	void ReplaceBranches(int i) {
+	void ResetGame() {
+		Destroy (player);
+		Destroy (fire);
+		//Destroy (branchCtrl);
+		Start ();
+	}
+	/*
+	//void ReplaceBranches(int i) {
 		//i indicates the row, i.e. 0->[0,1,2] etc.
 		//Remove all of the branches from that row
 		GameObject b1 = branches [i*3];
@@ -187,16 +137,10 @@ public class Spawner : MonoBehaviour {
             last.GetComponent<BranchSegment>().nextBranch = branches[i * 3 + j].GetComponent<BranchSegment>();
         }
 	}
+	*/
 
-	void ResetGame() {
-		Destroy (player);
-		Destroy (fire);
-		for (int i = 0; i < 9; i++) {
-			Destroy (branches [i]);
-		}
-		Start ();
-	}
 
+	/*
 	//Generates a path for each branch with start and end points
 	public Vector3[,] generatePaths(Vector3[,] branch_paths, int depth) {
 		var num_segs = branch_paths.GetLength(1);
@@ -278,6 +222,5 @@ public class Spawner : MonoBehaviour {
 		}
 		return midPoints;
 	}
+	*/
 }
-//0 1, 2 3
-// 0 .5,  1 1.5, 2 2.5, 3 

@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿/*
+
+using UnityEngine;
 using System.Collections;
 
 public class BranchCurveLeft : Branch_Parent {
@@ -37,3 +39,4 @@ public class BranchCurveLeft : Branch_Parent {
 		collider.points = collider_path;
 	}
 }
+*/

@@ -16,7 +16,7 @@ public class SnakeController : MonoBehaviour {
 	public int			collisionCooldown;	//Cooldown Timer avoids collisions immediately after jumping
     private float       diffY, diffX;
 	public bool 		die;
-    public Vector3             centerPos;
+    public Vector3      centerPos;
     WiggleController    wiggleController;
 	GameObject			tail;
 
@@ -80,8 +80,6 @@ public class SnakeController : MonoBehaviour {
     void FixedUpdate () {
 		Camera.main.gameObject.transform.position = new Vector3 (centerPos.x, centerPos.y, -10);
 
-        
-
         if (isJumping) {
 			yVeloc -= gravity;
 			transform.position = centerPos;
@@ -92,13 +90,12 @@ public class SnakeController : MonoBehaviour {
             //What was the purpose of these?
 			//xVeloc *= .6f;
             //yVeloc *= .9f;
-            var branch = currentBranch.GetComponent<Branch_Parent>();
-            var branchSpeed = branch.branchSpeed;
+			var branchSpeed = currentBranch.GetComponent<BranchSegment>().branchSpeed;
             if (branchVeloc < branchSpeed) {
                 branchVeloc = ((branchVeloc * 9f) + branchSpeed)/10f;
             }
-            var lastp = centerPos;
-            centerPos = currentBranch.GetComponent<Branch_Parent>().getNextPosition(centerPos, branchVeloc);
+            //var lastp = centerPos;
+			centerPos = currentBranch.GetComponent<BranchSegment>().getNextPosition(centerPos, branchVeloc);
 			transform.position = centerPos;
             //transform.position = wiggleController.Wiggle(centerPos, lastp);
    		}
@@ -146,11 +143,12 @@ public class SnakeController : MonoBehaviour {
 		
 
 		else if (/*isJumping==true &&*/ collisionCooldown == 0) {
-			if (col.gameObject.GetComponent<Branch_Parent> () != null &&
-			    col.gameObject.GetComponent<Branch_Parent> ().isCollidable == true) {
+			if (col.gameObject.GetComponent<BranchSegment> () != null &&
+				col.gameObject.GetComponent<BranchSegment> ().isCollidable == true) {
+				Debug.Log ("Doing a colission!");
 				//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
-				col.gameObject.GetComponent<Branch_Parent> ().isCollidable = false;
-				currentBranch.GetComponent<Branch_Parent> ().isCollidable = true;
+				col.gameObject.GetComponent<BranchSegment> ().isCollidable = false;
+				currentBranch.GetComponent<BranchSegment> ().isCollidable = true;
 				currentBranch = col.gameObject;
 				isJumping = false;
 				collisionCooldown = 5;
