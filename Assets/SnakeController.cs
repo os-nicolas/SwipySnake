@@ -108,10 +108,12 @@ public class SnakeController : MonoBehaviour {
     {
 
         Vector3 last = new Vector3(0, 0, 0);
-        private readonly float period = 40;
-        private readonly float amplitude = .55f;
+        private readonly float period = 20;
+        private readonly float amplitude = .25f;//.55f;
         private float effect = 0;
         private int ticks = 0;
+        private bool startInFront;
+        private bool startMovingRight;
 
         public WiggleController() {
         }
@@ -126,15 +128,20 @@ public class SnakeController : MonoBehaviour {
         {
             effect = (10 + effect) / 11f;
             var diff = (p - lastp).normalized;
-            var ms = DateTime.Now.Millisecond;
             ticks++;
             var angle = (ticks% period)  * 2 * Mathf.PI/ period;
-            var nextMag = Mathf.Sin((float)angle) * amplitude;
-            var z = Mathf.Cos((float)angle) * amplitude;
+            var nextMag = (this.startMovingRight ? 1 : -1) * Mathf.Sin((float)angle) * amplitude;
+            var z = (this.startInFront ? 1 : -1)* Mathf.Cos((float)angle) * amplitude;
             var target = new Vector3(-diff.y * nextMag, diff.x * nextMag,z);
             var lastlast = last;
             last = target;
             return p + effect*((target + lastlast )/ 2f);
+        }
+
+        public void Reset(bool startInFront, bool startMovingRight) {
+            ticks = 0;
+            this.startInFront = startInFront;
+            this.startMovingRight = startMovingRight;
         }
     }
 
@@ -153,6 +160,9 @@ public class SnakeController : MonoBehaviour {
 				currentBranch = col.gameObject;
 				isJumping = false;
 				collisionCooldown = 5;
+                // start moving right is not quite correct here
+                // but it should do 
+                wiggleController.Reset(this.transform.position.y > 0, this.xVeloc < 0);
 			}
 		}
 	}
