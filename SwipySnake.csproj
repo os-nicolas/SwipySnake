@@ -75,6 +75,7 @@
     <Compile Include="Assets\SnakeController.cs" />
     <Compile Include="Assets\SnakeTail.cs" />
     <Compile Include="Assets\Spawner.cs" />
+    <Compile Include="Assets\TimeSlower.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

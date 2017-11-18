@@ -107,7 +107,7 @@ public class Spawner : MonoBehaviour {
 		if (firepos.y < camera_bottom + 2) {
 			firepos.y = camera_bottom + 2;
 		} else {
-			firepos.y += .02f;
+			firepos.y += .02f *TimeSlower.TimeScale;
 		}
 		fire.transform.position = firepos;
 		if (player.transform.position.y < firepos.y) {

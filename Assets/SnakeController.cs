@@ -26,7 +26,7 @@ public class SnakeController : MonoBehaviour {
     void Start ()
     {
         die = false;
-        mouseDamper = 50f;
+        mouseDamper = 35f;
         isJumping = false;
         xVeloc = 0f;
         yVeloc = 0f;
@@ -58,10 +58,16 @@ public class SnakeController : MonoBehaviour {
         diffX = (mousePos.x - centerPos.x) / mouseDamper;
         diffY = (mousePos.y - centerPos.y) / mouseDamper;
         
-        if (!isJumping && Input.GetMouseButtonDown(0))
-        {
-            Jump();
-        }
+        if (!isJumping) {
+            if (Input.GetMouseButtonDown(0))
+            {
+                TimeSlower.StartInput();
+            }
+            if (Input.GetMouseButtonUp(0)) {
+                TimeSlower.EndInput();
+                Jump();
+            }
+        } 
 
     }
 
@@ -80,10 +86,10 @@ public class SnakeController : MonoBehaviour {
 		Camera.main.gameObject.transform.position = new Vector3 (centerPos.x, centerPos.y, -10);
         
         if (isJumping) {
-			yVeloc -= gravity;
+			yVeloc -= gravity*TimeSlower.TimeScale;
 			transform.position = centerPos;
-			centerPos.x += xVeloc;
-			centerPos.y += yVeloc;
+			centerPos.x += xVeloc*TimeSlower.TimeScale;
+			centerPos.y += yVeloc * TimeSlower.TimeScale;
             var wigglePos = wiggleController.UnWiggle(centerPos);
             SnakeTail.Get().retraceTail(wigglePos);
         } else {
@@ -96,7 +102,7 @@ public class SnakeController : MonoBehaviour {
                 branchVeloc = ((branchVeloc * 9f) + branchSpeed)/10f;
             }
             var lastp = centerPos;
-            centerPos = currentBranch.GetComponent<Branch_Parent>().getNextPosition(centerPos, branchVeloc);
+            centerPos = currentBranch.GetComponent<Branch_Parent>().getNextPosition(centerPos, branchVeloc * TimeSlower.TimeScale);
 			transform.position = centerPos;
             var wigglePos = wiggleController.Wiggle(centerPos, lastp);
             SnakeTail.Get().retraceTail(wigglePos);
@@ -111,7 +117,7 @@ public class SnakeController : MonoBehaviour {
         private readonly float period = 20;
         private readonly float amplitude = .25f;//.55f;
         private float effect = 0;
-        private int ticks = 0;
+        private float ticks = 0;
         private bool startInFront;
         private bool startMovingRight;
 
@@ -128,7 +134,7 @@ public class SnakeController : MonoBehaviour {
         {
             effect = (10 + effect) / 11f;
             var diff = (p - lastp).normalized;
-            ticks++;
+            ticks+=TimeSlower.TimeScale;
             var angle = (ticks% period)  * 2 * Mathf.PI/ period;
             var nextMag = (this.startMovingRight ? 1 : -1) * Mathf.Sin((float)angle) * amplitude;
             var z = (this.startInFront ? 1 : -1)* Mathf.Cos((float)angle) * amplitude;
