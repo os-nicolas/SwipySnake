@@ -5,67 +5,392 @@ using System.Linq;
 
 /// <summary>
 /// 	BranchController handles the generation and deletion of branch objects
-/// 
-///		Mainly handles branches is a list of continuous branches (cb), with each
-/// 	cb containing all of its connected pieces with no gaps inbetween. When a
-/// 	gap is reached, a new cb must be created.
+/// 	TODO:   Make continuous generation
+/// 	        Test and push changes
+/// 	        Merge
+/// 	        Readd obstacles
+/// 	        Readd joints
+/// 	        wrapping!
 /// </summary>
 
 public class BranchController : MonoBehaviour {
 
-	public List<GameObject> branches;
-	//public GameObject[] obstacles;
-	private int curveHeight = 5;
-	private int sectionCurves = 4;
+    public List<GameObject> branches;
+    //public GameObject[] obstacles;
+    private int curveHeight = 5;
+    private int sectionCurves = 4;
+    private float SectionHeight = 20.0f;
 
-	void Awake () {
-		branches = new List<GameObject> ();
-		for (int i = 0; i < 3; i++) {
-			GameObject br = GameObject.Instantiate (Resources.Load ("Branch")) as GameObject;
-			//br.AddComponent<Branch> ();
-			Vector2 p = new Vector2 ((i - 1) * 5, -5.0f);
-			br.GetComponent<Branch> ().addStraight (p);
-			if (i == 1) {
-				br.GetComponent<Branch> ().segments.Last().GetComponent<BranchSegment>().isCollidable = false;
-			}
-			branches.Add (br);
-		}
-		//generatePaths ();
-	}
+    void Awake() {
+        branches = new List<GameObject>();
+        for (int i = 0; i < 3; i++) {
+            GameObject br = Instantiate(Resources.Load("BranchSegment")) as GameObject;
+            Vector2 p = new Vector2((i - 1) * 5, -5.0f);
+            br.GetComponent<BranchSegment>().goStraight(p);
+            if (i == 1) {
+                br.GetComponent<BranchSegment>().isCollidable = false;
+            }
+            branches.Add(br);
+        }
+        generateBranches();
+    }
+
+    //Remove any branches which have gone below the screen
+    public void trimBottom(float yPos)
+    {
+        for (int i = branches.Count - 1; i >= 0; i--)
+        {
+            GameObject seg = branches[i];
+            if (seg.GetComponent<BranchSegment>().getEndPosition().y < yPos)
+            {
+                branches.RemoveAt(i);
+                GameObject.Destroy(seg);
+            }
+        }
+    }
+
+    //Find intersection points for two branches
+    //TODO: switch to List<Vector2>
+    public List<List<int>> getIntersects(List<Vector2> a, List<Vector2> b)
+    {
+        List<int> Aintersects = new List<int>();
+        List<int> Bintersects = new List<int>();
+        List<List<int>> intersects = new List<List<int>>();
+        int x = 0;
+        int y = 0;
+        char aSide = 'N'; //Start in Neutral position
+        Vector2 aPos = a.First();
+        Vector2 bPos = b.First();
+        //Check only the points where the two sets begin to overlap
+        if (aPos.y < bPos.y)
+        {
+            while (x < a.Count - 1 && a[x + 1].y < bPos.y)
+            {
+                x++;
+            }
+            if (a[x + 1].y < bPos.y)
+                return intersects;
+        }
+        else if (aPos.y > bPos.y)
+        {
+            while (y < b.Count - 1 && b[y + 1].y < aPos.y)
+            {
+                y++;
+            }
+            if (b[y + 1].y < aPos.y)
+                return intersects;
+        }
+
+        //Find overlap points 
+        while (x < a.Count && y < b.Count)
+        {
+            aPos = a[x];
+            bPos = b[y];
+            //Step 1: Check the new position of the branches to find overlaps
+            //Case 1: the two branches meet, always consider as an overlap
+            if (aPos.x == bPos.x)
+            {
+                aSide = 'N';
+                if (!Aintersects.Contains(x))
+                {
+                    Aintersects.Add(x);
+                    Debug.Log("A: " + x);
+                }
+                if (!Bintersects.Contains(y))
+                {
+                    Bintersects.Add(y);
+                    Debug.Log("B: " + y);
+                }
+            }
+            //Case 2: a is on the left side
+            else if (aPos.x < bPos.x)
+            {
+                //If a was on right before add intersect
+                if (aSide == 'R')
+                {
+                    if (!Aintersects.Contains(x)) {
+                        Aintersects.Add(x);
+                        Debug.Log("A: " + x);
+                    }
+                    if (!Bintersects.Contains(y)) {
+                        Bintersects.Add(y);
+                        Debug.Log("A: " + x);
+                    }
+                }
+                aSide = 'L';
+            }
+            //Case 3: a is on the right
+            else
+            {
+                //If a was on left before add intersect
+                if (aSide == 'L')
+                {
+                    if (!Aintersects.Contains(x)) {
+                        Aintersects.Add(x);
+                        Debug.Log("A: " + x);
+                    }
+                    if (!Bintersects.Contains(y)) {
+                        Bintersects.Add(y);
+                        Debug.Log("B: " + y);
+                    }
+                }
+                aSide = 'R';
+            }
+
+            //Step 2: Check whether the next points x-coordinates align
+            //Case 1: Same height check and increase both
+            if (aPos.y == bPos.y)
+            {
+                x++;
+                y++;
+            }
+            //Case 2: aPos is below bPos check and increase aPos
+            else if (aPos.y < bPos.y)
+            {
+                x++;
+            }
+            //Case 3: aPos is above bPos check and increase bPos
+            else
+            {
+                y++;
+            }
+
+        }
+        intersects.Add(Aintersects);
+        intersects.Add(Bintersects);
+        return intersects;
+    }
+
+    //TODO: This might get removed!
+    public void addBranches(List<List<Vector2>> newBranches, bool active)
+    {
+        foreach (List<Vector2> branchPath in newBranches)
+        {
+            GameObject br = GameObject.Instantiate(Resources.Load("BranchSegment")) as GameObject;
+            br.GetComponent<BranchSegment>().setPath(branchPath, active);
+            branches.Add(br);
+        }
+    }
+
+    //Takes a list of branches and separates them there they overlap
+    //TODO: switch to List<List<Vector2>> and finish
+    public List<List<List<Vector2>>> splitGaps(List<List<Vector2>> branch_paths)
+    {
+
+        List<List<int>> gaps = new List<List<int>>();
+        for (int i = 0; i < branch_paths.Count; i++)
+        {
+            gaps.Add(new List<int>());
+        }
+
+        for (int i = 0; i < branch_paths.Count; i++)
+        {
+            for (int j = i + 1; j < branch_paths.Count; j++)
+            {
+                var g = getIntersects(branch_paths[i], branch_paths[j]);
+                gaps[i] = gaps[i].Union<int>(g[0]).ToList<int>();
+                gaps[j] = gaps[j].Union<int>(g[1]).ToList<int>();
+            }
+        }
+
+        List<List<List<Vector2>>> newBranches = new List<List<List<Vector2>>>();
+        newBranches.Add(new List<List<Vector2>>()); //active branches
+        newBranches.Add(new List<List<Vector2>>()); //inactive branches
+
+        for (int i = 0; i < gaps.Count; i++)
+        {
+            int start = 0;
+            for (int j = 0; j < gaps[i].Count - 1; j++)
+            {
+                if (gaps[i][j] - start > 0)
+                    newBranches[1].Add(branch_paths[i].GetRange(start, gaps[i][j] - start));
+                start = gaps[i][j] + 1;
+            }
+            newBranches[0].Add(branch_paths[i].GetRange(start, branch_paths[i].Count - start));
+        }
+
+        return newBranches;
+    }
+
+    //Creates new branches at the endpoint of each currently open branch
+    public void generateBranches()
+    {
+        List<Vector2> endPoints = new List<Vector2>();
+
+        foreach (GameObject cb in branches)
+        {
+            if (cb.GetComponent<BranchSegment>().active)
+            {
+                cb.GetComponent<BranchSegment>().active = false;
+                endPoints.Add(cb.GetComponent<BranchSegment>().getEndPosition());
+            }
+        }
+
+        //Vector2[,] branchGroup = new Vector2[endPoints.Count, 2];
+        List<List<Vector2>> branchGroup = new List<List<Vector2>>();
+        for (int i = 0; i < endPoints.Count; i++)
+        {
+            Vector2 p = endPoints[i];
+            bool unique = false;
+            float newX;
+            do
+            {
+                newX = p.x + Random.Range(-10.0f, 10.0f);
+                unique = true;
+                for (int j = i - 1; j >= 0; j--)
+                {
+                    if (Mathf.Abs(newX - branchGroup[j][1].x) < 2)
+                    {
+                        unique = false;
+                    }
+                }
+            } while (!unique);
+            List<Vector2> pl = new List<Vector2>();
+            pl.Add(p);
+            Vector2 p2 = p;
+            p2.y += SectionHeight;
+            p2.x = newX;
+            pl.Add(p2);
+            branchGroup.Add(pl);
+        }
+        List<List<Vector2>> newBranches = generatePaths(branchGroup, 3);
+        List<List<List<Vector2>>> splitBranches = splitGaps(newBranches);
+        List<List<List<Vector2>>> lerpBranches = lerp(splitBranches);
+        addBranches(lerpBranches[0], true);
+        addBranches(lerpBranches[1], false);
+    }
+
+    public List<List<List<Vector2>>> lerp(List<List<List<Vector2>>> branches) {
+        List<List<List<Vector2>>> return_path = new List<List<List<Vector2>>>();
+        foreach (List<List<Vector2>> branch_paths in branches)
+        {
+            List<List<Vector2>> lerped_paths = new List<List<Vector2>>();
+            foreach (List<Vector2> path in branch_paths)
+            {
+                int curvedLength = path.Count * 3;
+                List<Vector2> curvedPoints = new List<Vector2>(curvedLength);
+                var t = 0.0f;
+                for (int i = 0; i < curvedLength + 1; i++)
+                {
+                    t = Mathf.InverseLerp(0, curvedLength, i);
+                    var points = new List<Vector2>(path);
+                    for (int j = path.Count - 1; j > 0; j--)
+                    {
+                        for (int k = 0; k < j; k++)
+                        {
+                            points[k] = (1 - t) * points[k] + t * points[k + 1];
+                        }
+                    }
+                    curvedPoints.Add(points[0]);
+                }
+                lerped_paths.Add(curvedPoints);
+            }
+            return_path.Add(lerped_paths);
+        }
+        return return_path;
+    }
 
 
-	/*  1: Get the endpoints of all active paths (1, 3, 5) 
-	 *  2: Generate next point for each path ((1,0), (3,4), (5,3))
-	 *  3: Determine overlaps and generate new branches
-	 * 		 paths: ((1,0), (4), (3))  Add: ((3), (5))
-	 * 
-	 * ALTERNATIVE
-	 * 1: Generate the entire new path for each branch ((1,0,3,1), (3, 4, 7, 3), (5, 3, 1, 0))
-	 * 2: Determine overlaps and divide
-	 * 		Overlaps: (1-3: 3, 2-3: 2) -> (1:(1,0)2:(3)3:(5)(3)) + (1:(3,1)2:(4,7,3))3:(1,0))
-	 * 										capped 					not capped
-	 * 
-	 * Need to also account for overlaps when wrapping the screen
-	 * Say one point is at 0 and another at 7 with screen size of 6
-	 *   The wrapped point will be at 1
-	 *   So for point (4->7) 6 overlaps exist:
-	 * 		(5->3) Right to left (a1>b1 && a2<b2)
-	 * 		(3->8) Left to Right (a1<b1 && a2>b2)
-	 *   Wrapped overlaps (-2, 1) and (10, 13)
-	 * 		(0->-1) Right to Left (a1<b1 && a2>b2)
-	 * 
-	 * 
-	 * FIXME: This will probably generate more branches then are being deleted!
-	 * 
-	 */
+    public List<List<Vector2>> generatePaths(List<List<Vector2>> branch_paths, int depth)
+    {
+        if (depth == 0)
+        {
+            //TODO lerp here
+            List<List<Vector2>> return_path = new List<List<Vector2>>();
+            for (int i = 0; i<branch_paths.Count; i++)
+            {
+                var lerped = new List<Vector2>();
+                var t = 0.0f;
+                for (int j = 0; j<branch_paths[i].Count-1; j++)
+                {
+                    t = Mathf.InverseLerp(0, (branch_paths[i].Count * 3) - 1, j);
+                    lerped.Add(branch_paths[i][j]);
+                    lerped.Add((1 - t) * branch_paths[i][j] + t * branch_paths[i][j + 1]);
+                }
+                lerped.Add(branch_paths[i].Last());
+                return_path.Add(lerped);
+            }
+            return return_path;
+        }
 
-	public void generatePaths() {
+        //Vector2[,] genPath = new Vector2[num_bran, num_segs * 2 - 1];
+        List<List<Vector2>> genPath = new List<List<Vector2>>();
+
+        //Iterate over each point in bran
+        for (int j = 0; j < branch_paths.First().Count-1; j++)
+        {
+            //Vector2[] startPoints = new Vector2[num_bran];
+            //Vector2[] endPoints = new Vector2[num_bran];
+            List<Vector2> startPoints = new List<Vector2>();
+            List<Vector2> endPoints = new List<Vector2>();
+            //Get the start and endpoints for each branch on this segment
+            for (int i = 0; i < branch_paths.Count; i++)
+            {
+                startPoints.Add(branch_paths[i][j]);
+                endPoints.Add(branch_paths[i][j + 1]);
+                if (j == 0)
+                {
+                    genPath.Add(new List<Vector2>());
+                }
+            }
+            //Generate the midPoints for each branch together
+            List<Vector2> midPoints = genMidPoints(startPoints, endPoints);
+
+            for (int i = 0; i < branch_paths.Count; i++)
+            {
+                genPath[i].Add(branch_paths[i][j]);
+                genPath[i].Add(midPoints[i]);
+            }
+        }
+        //Add in last point
+        for (int i = 0; i < branch_paths.Count; i++)
+        {
+            genPath[i].Add(branch_paths[i].Last());
+        }
+
+        return generatePaths(genPath, depth - 1);
+    }
+
+
+    public List<Vector2> genMidPoints(List<Vector2> startPoints, List<Vector2> endPoints)
+    {
+        List<Vector2> midPoints = new List<Vector2>();
+
+        for (int i = 0; i < startPoints.Count; i++)
+        {
+            Vector2 start = startPoints[i];
+            Vector2 end = endPoints[i];
+            var diff = end - start;
+            var maxDist = Mathf.Sqrt(diff.magnitude);
+            var center = (end + start) / 2f;
+
+            var a = 90 * Mathf.Deg2Rad;
+            var o = Quaternion.Euler(0, 0, 90) * diff.normalized;
+            var offset = new Vector2(o.x, o.y);
+            //var offset = new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * diff.normalized;
+
+            Vector2 midpoint = center + (offset * Random.Range(-maxDist, maxDist));
+            midPoints.Add(midpoint);
+        }
+        return midPoints;
+    }
+
+
+    private void OnDestroy()
+    {
+        foreach (GameObject br in branches )
+        {
+            Destroy(br);
+        }
+    }
+    /*
+	public void generatePathsOld() {
 		List<List<Vector2>> openPaths = new List<List<Vector2>> ();
 		List<List<Vector2>> cappedPaths = new List<List<Vector2>> ();
 		//Start at endpoints for all ongoing branches
 		foreach (GameObject cb in branches) {
 			GameObject br = cb.GetComponent<Branch>().segments.Last ();
-			if (!br.GetComponent<BranchSegment> ().isEnd) {
+			if (!br.GetComponent<BranchSegment> ().active) {
 				List<Vector2> n = new List<Vector2> ();
 				n.Add (br.GetComponent<BranchSegment> ().getEndPosition());
 				openPaths.Add (n);
@@ -104,8 +429,9 @@ public class BranchController : MonoBehaviour {
 			//branches.Add (br);
 		}
 	}
+    */
 
-	private List<int> findOverlaps(List<Vector2> a, List<Vector2> b) {
+    private List<int> findOverlaps(List<Vector2> a, List<Vector2> b) {
 		List<int> overlaps = new List<int>();
 		for (int i = 1; i < a.Count; i++) {
 			for (int j = 0; j < 3; j++) {
@@ -124,14 +450,21 @@ public class BranchController : MonoBehaviour {
 		return overlaps;
 	}
 
-	public void trimPaths(float y){
+	public void trimBranches(float bot, float top){
+        bool grow = false;
 		for (int i = branches.Count-1; i>=0; i--) {
 			GameObject br = branches [i];
-			if (br.GetComponent<Branch>().trimBottom (y)) {
+            var end = br.GetComponent<BranchSegment>().getEndPosition().y;
+            if (br.GetComponent<BranchSegment>().active && end < top)
+                grow = true;
+			if (end < bot) {
 				branches.RemoveAt (i);
 				Destroy(br);
 			}
 		}
+
+        if (grow)
+            generateBranches();
 	}
 
 }

@@ -31,7 +31,7 @@ public class SnakeController : MonoBehaviour {
         collisionCooldown = 0;
         tragLine = this.GetComponent<LineRenderer>();
         centerPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-        //wiggleController = new WiggleController();
+        wiggleController = new WiggleController();
 		tail = Instantiate(Resources.Load("SnakeTail")) as GameObject;
 		Vector3[] tailPoints = new Vector3[10];
 		for (int i = 0; i < 10; i++) {
@@ -47,17 +47,12 @@ public class SnakeController : MonoBehaviour {
 			collisionCooldown--;
 		}
         
-
         var mousePos = Input.mousePosition;
 		mousePos.z = 10;
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
-		Debug.Log (mousePos.x);
-
         diffX = (mousePos.x - centerPos.x) / mouseDamper;
         diffY = (mousePos.y - centerPos.y) / mouseDamper;
-
-
 
         if (!isJumping && Input.GetMouseButtonDown(0))
         {
@@ -145,7 +140,6 @@ public class SnakeController : MonoBehaviour {
 		else if (/*isJumping==true &&*/ collisionCooldown == 0) {
 			if (col.gameObject.GetComponent<BranchSegment> () != null &&
 				col.gameObject.GetComponent<BranchSegment> ().isCollidable == true) {
-				Debug.Log ("Doing a colission!");
 				//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
 				col.gameObject.GetComponent<BranchSegment> ().isCollidable = false;
 				currentBranch.GetComponent<BranchSegment> ().isCollidable = true;

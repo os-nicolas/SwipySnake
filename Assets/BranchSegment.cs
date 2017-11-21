@@ -11,10 +11,10 @@ public class BranchSegment : MonoBehaviour{
 	EdgeCollider2D	collider;
 
 	public GameObject joint;
-	public bool isEnd = false;
+	public bool active = false;
 
 	public bool 		 isCollidable = true;
-	public GameObject[]  obstacles;
+	//public GameObject[]  obstacles;
 	public List<Vector2> path;
 
 	public float leftmost;
@@ -28,27 +28,26 @@ public class BranchSegment : MonoBehaviour{
 		branchSpeed = .1f;
 	}
 
-	public void setPath(List<Vector2> newPath, bool end) {
+	public void setPath(List<Vector2> newPath, bool setActive) {
 		path = new List<Vector2> ();
 		int count = newPath.Count;
 		Vector3[] vectors = new Vector3[count];
 		Vector2[] collider_path = new Vector2[count];
-		line.SetVertexCount (count);
-		int x = 0;
-		leftmost = float.MaxValue;
+        line.positionCount = count;
+        leftmost = float.MaxValue;
 		rightmost = float.MinValue;
-		foreach (Vector2 point in newPath) {
+		for (int i = 0; i< newPath.Count; i++) {
+            Vector2 point = newPath[i];
 			path.Add (point);
-			vectors [x] = new Vector3 (point.x, point.y, 0);
-			collider_path [x] = new Vector2 (point.x, point.y);
-			x++;
+			vectors [i] = new Vector3 (point.x, point.y, 0);
+			collider_path [i] = new Vector2 (point.x, point.y);
 			if (point.x > rightmost)
 				rightmost = point.x;
 			if (point.x < leftmost)
 				leftmost = point.x;
 		}
 		line.SetPositions (vectors);
-		isEnd = end;
+		active = setActive;
 		collider.points = collider_path;
 	}
 
@@ -59,7 +58,7 @@ public class BranchSegment : MonoBehaviour{
 			straight.Add (curPoint);
 			curPoint.y += 1.75f;
 		}
-		setPath (straight, false);
+		setPath (straight, true);
 	}
 
 	/*
@@ -68,38 +67,43 @@ public class BranchSegment : MonoBehaviour{
 	}
 	*/
 
-	private Vector2 getNextPoint(Vector2 pos) {
+	private Vector3 getNextPoint(Vector3 pos) {
 		foreach (Vector2 point in path) {
-			if (point.y > pos.y)
-				return point;
+            if (point.y > pos.y)
+            {
+                return new Vector3(point.x, point.y, pos.z);
+            }
 		}
-		return path.Last ();
+        var last = path.Last();
+        return new Vector3(last.x, last.y, pos.z);
+
 	}
 
-	public Vector2 getNextPosition(Vector2 pos, float velocity) {
-		Vector2 next = getNextPoint (pos);
+	public Vector3 getNextPosition(Vector3 pos, float velocity) {
+        Vector3 next = getNextPoint (pos);
 		
 		var direction = (next - pos).normalized;
-		var move = velocity * direction;
-		Vector2 newPos = new Vector2 (pos.x, pos.y) + move;
-		if (newPos.y > next.y) {
-			if (isEnd)
+		var move = direction * velocity;
+		Vector3 newPos = pos + move;
+		if (pos.y >= newPos.y) {
+			if (!active)
 				return pos;
 		}
 		return newPos;
-		//FIXME: need to check for newPos.y > next.y in branch to get next seg
 	}
 		
 	public Vector2 getEndPosition() {
 		return path.Last();
 	}
 
+    /*
 	public Vector2 generateSpread(float yDist) {
 		Vector2 gen = path.Last();
 		gen.y += yDist;
 		gen.x += Random.Range (-3.0f, 3.0f);
 		return gen;
 	}
+    */
 		/*
 		var closest = default(Vector2);
 		var next = default(Vector2);

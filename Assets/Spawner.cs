@@ -26,26 +26,17 @@ public class Spawner : MonoBehaviour {
 		player = Instantiate(Resources.Load("Snake")) as GameObject;
 		fire = Instantiate (Resources.Load ("FireLine")) as GameObject;
 		branchCtrl = Instantiate (Resources.Load ("BranchCtrl")) as GameObject;
-		player.GetComponent<SnakeController> ().currentBranch = branchCtrl.GetComponent<BranchController> ().branches [1].GetComponent<Branch> ().segments.First();
-
-		/*
-		Vector3[][] paths = new Vector3[startPoints.Length] [2];
-		for (int i=0; i<startPoints.Length; i++) {
-			Vector3 start = startPoints [i];
-			paths [i] [0] = start;
-			paths [i] [1] = new Vector3 (start.x, Random(-5, 5), start.z);
-		}
-		Vector3[][] return_paths = generatePaths (paths, 0);
-		*/
+		player.GetComponent<SnakeController> ().currentBranch = branchCtrl.GetComponent<BranchController> ().branches [1];
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		float camera_bottom = Camera.main.transform.position.y - Camera.main.orthographicSize;
-		if (player.GetComponent<SnakeController> ().die == true) {
+        float camera_top = Camera.main.transform.position.y + Camera.main.orthographicSize;
+        if (player.GetComponent<SnakeController> ().die == true) {
 			ResetGame ();
 		}
-		branchCtrl.GetComponent<BranchController>().trimPaths(camera_bottom);
+		branchCtrl.GetComponent<BranchController>().trimBranches(camera_bottom, camera_top + 3);
 		Vector3 firepos = fire.transform.position;
 		if (firepos.y < camera_bottom + 2) {
 			firepos.y = camera_bottom + 2;
@@ -61,7 +52,7 @@ public class Spawner : MonoBehaviour {
 	void ResetGame() {
 		Destroy (player);
 		Destroy (fire);
-		//Destroy (branchCtrl);
+		Destroy (branchCtrl);
 		Start ();
 	}
 	/*
