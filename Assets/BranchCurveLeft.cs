@@ -28,7 +28,7 @@ public class BranchCurveLeft : Branch_Parent {
 		int Amplitude = 1;
 		for (int i = 0; i < count; i++) {
 			player_path [i] = pos;
-			line_path [i] = new Vector3 (pos.x, pos.y, 2);
+			line_path [i] = new Vector3 (pos.x, pos.y, branchZ);
 			collider_path [i] = transform.InverseTransformPoint (line_path[i]);
 			pos.y += 17.5f/(float)count;
 			if (i<.8*count) {

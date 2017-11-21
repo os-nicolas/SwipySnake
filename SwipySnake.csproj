@@ -224,10 +224,12 @@
     <Compile Include="Assets\BranchCurveLeft.cs" />
     <Compile Include="Assets\BranchSegment.cs" />
     <Compile Include="Assets\BranchStraight.cs" />
+    <Compile Include="Assets\Lazy.cs" />
     <Compile Include="Assets\Obstacle.cs" />
     <Compile Include="Assets\SnakeController.cs" />
     <Compile Include="Assets\SnakeTail.cs" />
     <Compile Include="Assets\Spawner.cs" />
+    <Compile Include="Assets\TimeSlower.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

@@ -20,10 +20,13 @@ public class SnakeController : MonoBehaviour {
     WiggleController    wiggleController;
 	GameObject			tail;
 
+
+    public Lazy<SnakeTail> SnakeTail;
+
     void Start ()
     {
         die = false;
-        mouseDamper = 50f;
+        mouseDamper = 35f;
         isJumping = false;
         xVeloc = 0f;
         yVeloc = 0f;
@@ -37,7 +40,8 @@ public class SnakeController : MonoBehaviour {
 		for (int i = 0; i < 10; i++) {
 			tailPoints[i] = new Vector3 (centerPos.x, centerPos.y - i);
 		}
-		tail.GetComponent<SnakeTail>().points = tailPoints;
+        SnakeTail = new Lazy<SnakeTail>(() => tail.GetComponent<SnakeTail>());
+        SnakeTail.Get().points = tailPoints;
     }
 
     // drawing and input in update
@@ -51,14 +55,20 @@ public class SnakeController : MonoBehaviour {
 		mousePos.z = 10;
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
+        
         diffX = (mousePos.x - centerPos.x) / mouseDamper;
         diffY = (mousePos.y - centerPos.y) / mouseDamper;
-
-        if (!isJumping && Input.GetMouseButtonDown(0))
-        {
-            Jump();
-        }
-
+        
+        if (!isJumping) {
+            if (Input.GetMouseButtonDown(0))
+            {
+                TimeSlower.StartInput();
+            }
+            if (Input.GetMouseButtonUp(0)) {
+                TimeSlower.EndInput();
+                Jump();
+            }
+        } 
     }
 
     private void Jump()
@@ -76,11 +86,12 @@ public class SnakeController : MonoBehaviour {
 		Camera.main.gameObject.transform.position = new Vector3 (centerPos.x, centerPos.y, -10);
 
         if (isJumping) {
-			yVeloc -= gravity;
+			yVeloc -= gravity*TimeSlower.TimeScale;
 			transform.position = centerPos;
-			centerPos.x += xVeloc;
-			centerPos.y += yVeloc;
-            //transform.position = wiggleController.UnWiggle(centerPos);
+			centerPos.x += xVeloc*TimeSlower.TimeScale;
+			centerPos.y += yVeloc * TimeSlower.TimeScale;
+            var wigglePos = wiggleController.UnWiggle(centerPos);
+            SnakeTail.Get().retraceTail(wigglePos);
         } else {
             //What was the purpose of these?
 			//xVeloc *= .6f;
@@ -89,12 +100,12 @@ public class SnakeController : MonoBehaviour {
             if (branchVeloc < branchSpeed) {
                 branchVeloc = ((branchVeloc * 9f) + branchSpeed)/10f;
             }
-            //var lastp = centerPos;
-			centerPos = currentBranch.GetComponent<BranchSegment>().getNextPosition(centerPos, branchVeloc);
+            var lastp = centerPos;
+            centerPos = currentBranch.GetComponent<BranchSegment>().getNextPosition(centerPos, branchVeloc * TimeSlower.TimeScale);
 			transform.position = centerPos;
-            //transform.position = wiggleController.Wiggle(centerPos, lastp);
-   		}
-		tail.GetComponent<SnakeTail> ().retraceTail (transform.position);
+            var wigglePos = wiggleController.Wiggle(centerPos, lastp);
+            SnakeTail.Get().retraceTail(wigglePos);
+        }
         drawTrajectory(diffX, diffY);
     }
 
@@ -102,10 +113,12 @@ public class SnakeController : MonoBehaviour {
     {
 
         Vector3 last = new Vector3(0, 0, 0);
-        private readonly float period = 40;
-        private readonly float amplitude = .0f;//.5f;
+        private readonly float period = 20;
+        private readonly float amplitude = .25f;//.55f;
         private float effect = 0;
-        private int ticks = 0;
+        private float ticks = 0;
+        private bool startInFront;
+        private bool startMovingRight;
 
         public WiggleController() {
         }
@@ -120,14 +133,20 @@ public class SnakeController : MonoBehaviour {
         {
             effect = (10 + effect) / 11f;
             var diff = (p - lastp).normalized;
-            var ms = DateTime.Now.Millisecond;
-            ticks++;
+            ticks+=TimeSlower.TimeScale;
             var angle = (ticks% period)  * 2 * Mathf.PI/ period;
-            var nextMag = Mathf.Sin((float)angle) * amplitude;
-            var target = new Vector3(-diff.y * nextMag, diff.x * nextMag,0);
+            var nextMag = (this.startMovingRight ? 1 : -1) * Mathf.Sin((float)angle) * amplitude;
+            var z = (this.startInFront ? 1 : -1)* Mathf.Cos((float)angle) * amplitude;
+            var target = new Vector3(-diff.y * nextMag, diff.x * nextMag,z);
             var lastlast = last;
             last = target;
             return p + effect*((target + lastlast )/ 2f);
+        }
+
+        public void Reset(bool startInFront, bool startMovingRight) {
+            ticks = 0;
+            this.startInFront = startInFront;
+            this.startMovingRight = startMovingRight;
         }
     }
 
@@ -146,13 +165,16 @@ public class SnakeController : MonoBehaviour {
 				currentBranch = col.gameObject;
 				isJumping = false;
 				collisionCooldown = 5;
+                // start moving right is not quite correct here
+                // but it should do 
+                wiggleController.Reset(this.transform.position.y > 0, this.xVeloc < 0);
 			}
 		}
 	}
 
 	void drawTrajectory(float diffX, float diffY) {
 		var numPositions = 30;
-		tragLine.SetVertexCount (numPositions);
+		tragLine.positionCount = numPositions;
 
 		var xDist = diffX;
 		var yDist = diffY;

@@ -81,14 +81,14 @@ public class BranchSegment : MonoBehaviour{
 
 	public Vector3 getNextPosition(Vector3 pos, float velocity) {
         Vector3 next = getNextPoint (pos);
-		
-		var direction = (next - pos).normalized;
+        if (pos.y >= next.y)
+        {
+            return pos;
+        }
+        var direction = (next - pos).normalized;
 		var move = direction * velocity;
 		Vector3 newPos = pos + move;
-		if (pos.y >= newPos.y) {
-			if (!active)
-				return pos;
-		}
+		
 		return newPos;
 	}
 		
@@ -168,9 +168,9 @@ public class BranchSegment : MonoBehaviour{
 
 		for (int i = 0; i < playerPath.Length; i++) {
 			Vector3 path_point = playerPath [i];
-			path_point.z = 2;
+			path_point.z = branchZ;
 			line_path[i] = path_point;
-			player_path [i] = new Vector2 (path_point.x, path_point.y);
+			player_path [i] = new Vector3 (path_point.x, path_point.y,branchZ);
 			collider_path [i] = transform.InverseTransformPoint (path_point);
 		}
 		line.SetVertexCount (line_path.Length);

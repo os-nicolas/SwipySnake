@@ -94,12 +94,10 @@ public class BranchController : MonoBehaviour {
                 if (!Aintersects.Contains(x))
                 {
                     Aintersects.Add(x);
-                    Debug.Log("A: " + x);
                 }
                 if (!Bintersects.Contains(y))
                 {
                     Bintersects.Add(y);
-                    Debug.Log("B: " + y);
                 }
             }
             //Case 2: a is on the left side
@@ -110,11 +108,9 @@ public class BranchController : MonoBehaviour {
                 {
                     if (!Aintersects.Contains(x)) {
                         Aintersects.Add(x);
-                        Debug.Log("A: " + x);
                     }
                     if (!Bintersects.Contains(y)) {
                         Bintersects.Add(y);
-                        Debug.Log("A: " + x);
                     }
                 }
                 aSide = 'L';
@@ -127,11 +123,9 @@ public class BranchController : MonoBehaviour {
                 {
                     if (!Aintersects.Contains(x)) {
                         Aintersects.Add(x);
-                        Debug.Log("A: " + x);
                     }
                     if (!Bintersects.Contains(y)) {
                         Bintersects.Add(y);
-                        Debug.Log("B: " + y);
                     }
                 }
                 aSide = 'R';
@@ -363,8 +357,7 @@ public class BranchController : MonoBehaviour {
             var diff = end - start;
             var maxDist = Mathf.Sqrt(diff.magnitude);
             var center = (end + start) / 2f;
-
-            var a = 90 * Mathf.Deg2Rad;
+            
             var o = Quaternion.Euler(0, 0, 90) * diff.normalized;
             var offset = new Vector2(o.x, o.y);
             //var offset = new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * diff.normalized;
