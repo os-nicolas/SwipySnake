@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-//PLAN: make into separate object from parent straight will now inherit from here 
 
 public class BranchSegment : MonoBehaviour{
 
@@ -19,6 +18,7 @@ public class BranchSegment : MonoBehaviour{
 
 	public float leftmost;
 	public float rightmost;
+    public GameObject wrapCopy;
 
 	public float branchSpeed;
 
@@ -27,6 +27,14 @@ public class BranchSegment : MonoBehaviour{
 		collider = this.GetComponent<EdgeCollider2D> ();
 		branchSpeed = .1f;
 	}
+
+    public List<Vector2> getWrapPath(float xShift)
+    {
+        List<Vector2> newPath = new List<Vector2>();
+        foreach (Vector2 point in path)
+            newPath.Add(new Vector2(point.x + xShift, point.y));
+        return newPath;
+    }
 
 	public void setPath(List<Vector2> newPath, bool setActive) {
 		path = new List<Vector2> ();
@@ -60,12 +68,7 @@ public class BranchSegment : MonoBehaviour{
 		}
 		setPath (straight, true);
 	}
-
-	/*
-	public float Distance(Vector3 a, Vector3 b) {
-		return Mathf.Sqrt(((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y)));
-	}
-	*/
+    
 
 	private Vector3 getNextPoint(Vector3 pos) {
 		foreach (Vector2 point in path) {
@@ -95,91 +98,6 @@ public class BranchSegment : MonoBehaviour{
 	public Vector2 getEndPosition() {
 		return path.Last();
 	}
-
-    /*
-	public Vector2 generateSpread(float yDist) {
-		Vector2 gen = path.Last();
-		gen.y += yDist;
-		gen.x += Random.Range (-3.0f, 3.0f);
-		return gen;
-	}
-    */
-		/*
-		var closest = default(Vector2);
-		var next = default(Vector2);
-		var last = default(Vector2);
-		var closestDistance = float.MaxValue;
-
-		var distL = default(float);
-
-		foreach (Vector2 point in path) {
-			distL = Distance(point, pos);
-			if (distL < closestDistance)
-			{
-				last = player_path[i - 1];
-				closest = player_path[i];
-				next = player_path[i + 1];
-				closestDistance = distL;
-			}
-		}
-
-
-		if (nextBranch != null) {
-			distL = Distance(nextBranch.player_path[0],pos);
-			if (distL < closestDistance)
-			{
-
-				last = player_path[player_path.Length-2];
-				closest = nextBranch.player_path[0];
-				next = nextBranch.player_path[1];
-				closestDistance = distL;
-			}
-		}
-
-		var target = default(Vector2);
-
-		distL = Distance(player_path[0], pos);
-		if (distL < closestDistance)
-		{
-			closest = player_path[0];
-			next = player_path[1];
-			closestDistance = distL;
-			target = next;
-		}
-		else {
-			var dNext = Distance(pos, next) / Distance(closest,next);
-			var dLast = Distance(pos, last) / Distance(closest, last);
-			target = dNext < dLast + .1f ? next : closest;
-		}
-
-
-		//Move character towards next point
-		var direction = (target - pos).normalized;
-		var move = velocity * direction;
-
-		return new Vector2(pos.x,pos.y) + move;
-
-	}
-*/
-		/*
-		Vector2[] collider_path = new Vector2[playerPath.Length];
-		Vector3[] line_path = new Vector3[playerPath.Length];
-		player_path = new Vector2[playerPath.Length];
-
-		for (int i = 0; i < playerPath.Length; i++) {
-			Vector3 path_point = playerPath [i];
-			path_point.z = branchZ;
-			line_path[i] = path_point;
-			player_path [i] = new Vector3 (path_point.x, path_point.y,branchZ);
-			collider_path [i] = transform.InverseTransformPoint (path_point);
-		}
-		line.SetVertexCount (line_path.Length);
-		line.SetPositions (line_path);
-		collider.points = collider_path;
-		topJoint = Instantiate(Resources.Load("BranchJoint")) as GameObject;
-		topJoint.transform.position = line_path [playerPath.Length-1];
-	}
-	*/
 
 
 	/*

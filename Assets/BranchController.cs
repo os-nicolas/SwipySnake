@@ -5,12 +5,7 @@ using System.Linq;
 
 /// <summary>
 /// 	BranchController handles the generation and deletion of branch objects
-/// 	TODO:   Make continuous generation
-/// 	        Test and push changes
-/// 	        Merge
-/// 	        Readd obstacles
-/// 	        Readd joints
-/// 	        wrapping!
+
 /// </summary>
 
 public class BranchController : MonoBehaviour {
@@ -154,8 +149,7 @@ public class BranchController : MonoBehaviour {
         intersects.Add(Bintersects);
         return intersects;
     }
-
-    //TODO: This might get removed!
+    
     public void addBranches(List<List<Vector2>> newBranches, bool active)
     {
         foreach (List<Vector2> branchPath in newBranches)
@@ -167,7 +161,6 @@ public class BranchController : MonoBehaviour {
     }
 
     //Takes a list of branches and separates them there they overlap
-    //TODO: switch to List<List<Vector2>> and finish
     public List<List<List<Vector2>>> splitGaps(List<List<Vector2>> branch_paths)
     {
 
@@ -219,8 +212,7 @@ public class BranchController : MonoBehaviour {
                 endPoints.Add(cb.GetComponent<BranchSegment>().getEndPosition());
             }
         }
-
-        //Vector2[,] branchGroup = new Vector2[endPoints.Count, 2];
+        
         List<List<Vector2>> branchGroup = new List<List<Vector2>>();
         for (int i = 0; i < endPoints.Count; i++)
         {
@@ -289,7 +281,6 @@ public class BranchController : MonoBehaviour {
     {
         if (depth == 0)
         {
-            //TODO lerp here
             List<List<Vector2>> return_path = new List<List<Vector2>>();
             for (int i = 0; i<branch_paths.Count; i++)
             {
@@ -306,15 +297,12 @@ public class BranchController : MonoBehaviour {
             }
             return return_path;
         }
-
-        //Vector2[,] genPath = new Vector2[num_bran, num_segs * 2 - 1];
+        
         List<List<Vector2>> genPath = new List<List<Vector2>>();
 
         //Iterate over each point in bran
         for (int j = 0; j < branch_paths.First().Count-1; j++)
         {
-            //Vector2[] startPoints = new Vector2[num_bran];
-            //Vector2[] endPoints = new Vector2[num_bran];
             List<Vector2> startPoints = new List<Vector2>();
             List<Vector2> endPoints = new List<Vector2>();
             //Get the start and endpoints for each branch on this segment
@@ -376,53 +364,7 @@ public class BranchController : MonoBehaviour {
             Destroy(br);
         }
     }
-    /*
-	public void generatePathsOld() {
-		List<List<Vector2>> openPaths = new List<List<Vector2>> ();
-		List<List<Vector2>> cappedPaths = new List<List<Vector2>> ();
-		//Start at endpoints for all ongoing branches
-		foreach (GameObject cb in branches) {
-			GameObject br = cb.GetComponent<Branch>().segments.Last ();
-			if (!br.GetComponent<BranchSegment> ().active) {
-				List<Vector2> n = new List<Vector2> ();
-				n.Add (br.GetComponent<BranchSegment> ().getEndPosition());
-				openPaths.Add (n);
-				br.GetComponent<BranchSegment> ().isEnd = true;
-			}
-		}
 
-		//Generate new paths
-		foreach (List<Vector2> p in openPaths) {
-			for (int i = 0; i < sectionCurves; i++) {
-				Vector2 next = p.Last ();
-				next.y += 1f;
-				next.x += Random.Range (-3.0f, 3.0f);
-				p.Add (next);
-			}
-		}
-
-		//Split newOpenPaths into newCappedPaths
-		for (int i = 0; i < openPaths.Count - 1; i++) {
-			HashSet<int> overlaps = new HashSet<int> ();
-			for (int j = i + 1; j < openPaths.Count; j++) {
-				overlaps.UnionWith(findOverlaps (openPaths [i], openPaths [j]));
-			}
-			foreach (int o in overlaps) {
-				cappedPaths.AddRange (openPaths.GetRange (0, o));
-				openPaths.RemoveRange (0, o);
-			}
-		}
-
-		//Create Branches
-		foreach (List<Vector2> p in openPaths) {
-			GameObject br = GameObject.Instantiate (Resources.Load ("Branch")) as GameObject; 
-			br.GetComponent<Branch> ().addSegment (p, true);
-			//GameObject br = new GameObject (p.First ());
-			//br.addSegment (p, false);
-			//branches.Add (br);
-		}
-	}
-    */
 
     private List<int> findOverlaps(List<Vector2> a, List<Vector2> b) {
 		List<int> overlaps = new List<int>();
@@ -460,81 +402,65 @@ public class BranchController : MonoBehaviour {
             generateBranches();
 	}
 
+
+    public void wrapBranches(float left, float right)
+    {
+        var wrapDist = right - left;
+        int x = 0;
+        //Remove branches that have gone left or right off the screen
+        for (int i = branches.Count - 1; i >= 0; i--)
+        {
+            GameObject br = branches[i];
+            
+            if (br.GetComponent<BranchSegment>().active)
+            {
+                x++;
+            }
+
+            if (br.GetComponent<BranchSegment>().wrapCopy != null && (br.GetComponent<BranchSegment>().rightmost < left - 3 || br.GetComponent<BranchSegment>().leftmost > right + 3))
+            {
+                if (br.GetComponent<BranchSegment>().wrapCopy == null)
+                    Debug.LogError("About to remove a branch without a copy");
+                if (br.GetComponent<BranchSegment>().active)
+                {
+                    br.GetComponent<BranchSegment>().wrapCopy.GetComponent<BranchSegment>().active = true;
+                }
+                branches.RemoveAt(i);
+                Destroy(br);
+            }
+        }
+
+        if (x != 3)
+            Debug.LogError("Not enough branch ends!");
+
+        //Wrap branches on the edge of the screen by copying them to the other side
+        List<GameObject> newBranches = new List<GameObject>();
+        foreach (GameObject branch in branches)
+        {
+            if (branch.GetComponent<BranchSegment>().wrapCopy == null)
+            {
+                List<Vector2> wPath = new List<Vector2>();
+                if (branch.GetComponent<BranchSegment>().leftmost <= left)
+                {
+                    wPath = branch.GetComponent<BranchSegment>().getWrapPath(wrapDist);
+                }
+                else if (branch.GetComponent<BranchSegment>().rightmost >= right)
+                {
+                    wPath = branch.GetComponent<BranchSegment>().getWrapPath(-wrapDist);
+                }
+
+                if (wPath.Count != 0)
+                {
+                    GameObject br = GameObject.Instantiate(Resources.Load("BranchSegment")) as GameObject;
+                    br.GetComponent<BranchSegment>().setPath(wPath, false);
+                    br.GetComponent<BranchSegment>().wrapCopy = branch;
+                    newBranches.Add(br);
+                    branch.GetComponent<BranchSegment>().wrapCopy = br;
+                }
+            }
+        }
+        branches.AddRange(newBranches);
+
+    }
+
 }
-
-		/*
-		//newPaths holds the completed paths to make new branches from
-		List<List<float>> newPaths = new List<List<float>> ();
-		//genPaths holds the paths currently being generated
-		List<List<float>> genPaths = new List<List<float>> ();
-		foreach (Branch cb in branches) {
-			//Get the last branchSegment to start from
-			GameObject br = cb.Last ();
-			//If the branch continues, add another segment
-			if (!br.GetComponent<BranchSegment>().isEnd) {
-				List<float> l = new List<float>();
-				l.Add(br.GetComponent<BranchSegment>().getEndPosition().x);
-				genPaths.Add(l);
-			}
-		}
-			
-		for (int i = 0; i < sectionCurves; i++) {
-			List<float> curPoints = new List<float>();
-			List<float> newPoints = new List<float>();
-			//Populate newPoints with the next x-level y-coordinates for the path
-			foreach (List<float> p in genPaths) {
-				float nextPoint = genPaths.Last () + Random.Range (-3.0f, 3.0f);
-				newPoints.Add (nextPoint);
-				curPoints.Add (genPaths.Last ());
-				//float nextPoint = newPaths [j].Last () + Random.Range (-3.0f, 3.0f);
-				//genPoints.Add(new float[] { nextPoint, newPaths [j].Last () });
-			}
-
-			for (int j = 0; j < newPoints.Count; j++) {
-				for (int k = j+1; k < newPoints.Count; k++) {
-					if ( curPoints[i] == curPoints[j] || newPoints[i] == newPoints[j]
-						|| (curPoints[j] < curPoints[k] && newPoints[j] > newPoints[k])
-						|| (curPoints[j] > curPoints[k] && newPoints[j] < newPoints[k])) {
-
-					}
-				}
-			}
-
-
-			List<int> makeNewIndexes = new List<int> ();
-			for (int j = genPoints.Count; j>=0; j--) {
-				for (int k = j-1; k >= 0; k--) {
-					if (genPoints[j][0] > genPoints[k][0] && 
-					}
-				}
-			}
-			
-		}
-
-
-
-
-
-		//List of all the branches currently being added to
-		List<GameObject> activeBr = new List<GameObject> ();
-		//Find all active branches and add new segment
-		foreach(Branch cb in branches) {
-			GameObject br = cb.Last();
-			if (!br.GetComponent<BranchSegment>().isEnd) {
-				activeBr.Add (br);
-			}
-		}
-
-		//Generate paths for new Segments
-		for (int i = 0; i < sectionCurves; i++) {
-			List<int[]> newPoints = new List<int[]> ();
-			foreach (GameObject nb in activeBr) {
-				newPoints.Add(new int[] {nb.GetComponent<BranchSegment> ().generateSpread ().x, 0});
-			}
-			foreach (int[] newP in newPoints) {
-				//Step 1 determine if overlapping\
-				//Step 2 cap all overlapping and make new branch
-			}
-		}
-		*/
-		//Initialize all new branches at the very end

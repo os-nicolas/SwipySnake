@@ -161,7 +161,8 @@ public class SnakeController : MonoBehaviour {
 				col.gameObject.GetComponent<BranchSegment> ().isCollidable == true) {
 				//currentBranch = col.gameObject.GetComponent<Branch_Parent>().parent_branch;
 				col.gameObject.GetComponent<BranchSegment> ().isCollidable = false;
-				currentBranch.GetComponent<BranchSegment> ().isCollidable = true;
+                if (currentBranch != null)
+				    currentBranch.GetComponent<BranchSegment> ().isCollidable = true;
 				currentBranch = col.gameObject;
 				isJumping = false;
 				collisionCooldown = 5;
