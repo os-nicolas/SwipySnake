@@ -15,8 +15,15 @@ public class BranchController : MonoBehaviour {
     private int curveHeight = 5;
     private int sectionCurves = 4;
     private float SectionHeight = 20.0f;
+    public float screenWidth;
 
     void Awake() {
+        var screenBottomLeft = Camera.main.ViewportToWorldPoint(new Vector3(0, 0, 10));
+        var screenTopRight = Camera.main.ViewportToWorldPoint(new Vector3(1, 1, 10));
+
+        screenWidth = screenTopRight.x - screenBottomLeft.x;
+
+
         branches = new List<GameObject>();
         for (int i = 0; i < 3; i++) {
             GameObject br = Instantiate(Resources.Load("BranchSegment")) as GameObject;
@@ -45,18 +52,17 @@ public class BranchController : MonoBehaviour {
     }
 
     //Find intersection points for two branches
-    //TODO: switch to List<Vector2>
-    public List<List<int>> getIntersects(List<Vector2> a, List<Vector2> b)
+    public List<List<int>> getIntersects(List<Vector2> a, List<Vector2> b, float threshold = 0.5f)
     {
         List<int> Aintersects = new List<int>();
         List<int> Bintersects = new List<int>();
         List<List<int>> intersects = new List<List<int>>();
-        int x = 0;
-        int y = 0;
-        char aSide = 'N'; //Start in Neutral position
-        Vector2 aPos = a.First();
-        Vector2 bPos = b.First();
-        //Check only the points where the two sets begin to overlap
+        int x = 1;
+        int y = 1;
+        //char aSide = 'N'; //Start in Neutral position
+        Vector2 aPos = a[1];
+        Vector2 bPos = b[1];
+        //Check only the points where the two sets begin to overlap on y coordinate
         if (aPos.y < bPos.y)
         {
             while (x < a.Count - 1 && a[x + 1].y < bPos.y)
@@ -76,55 +82,61 @@ public class BranchController : MonoBehaviour {
                 return intersects;
         }
 
-        //Find overlap points 
+        //Find overlap points on x coordinate
+        float lastA;
+        float lastB;
         while (x < a.Count && y < b.Count)
         {
-            aPos = a[x];
+            lastB = b[y - 1].x;
             bPos = b[y];
-            //Step 1: Check the new position of the branches to find overlaps
-            //Case 1: the two branches meet, always consider as an overlap
-            if (aPos.x == bPos.x)
+            for (int i=-1; i<2; i++)
             {
-                aSide = 'N';
-                if (!Aintersects.Contains(x))
+                lastA = a[x - 1].x + (i*screenWidth);
+                aPos = a[x];
+                aPos.x += i * screenWidth;
+
+                //Step 1: Check the new position of the branches to find overlaps
+                //Case 1: the two branches meet, always consider as an overlap
+                if (Mathf.Abs(aPos.x - bPos.x) < threshold)
                 {
-                    Aintersects.Add(x);
-                }
-                if (!Bintersects.Contains(y))
-                {
-                    Bintersects.Add(y);
-                }
-            }
-            //Case 2: a is on the left side
-            else if (aPos.x < bPos.x)
-            {
-                //If a was on right before add intersect
-                if (aSide == 'R')
-                {
-                    if (!Aintersects.Contains(x)) {
+                    if (!Aintersects.Contains(x))
+                    {
                         Aintersects.Add(x);
                     }
-                    if (!Bintersects.Contains(y)) {
+                    if (!Bintersects.Contains(y))
+                    {
                         Bintersects.Add(y);
                     }
+                    break;
                 }
-                aSide = 'L';
-            }
-            //Case 3: a is on the right
-            else
-            {
-                //If a was on left before add intersect
-                if (aSide == 'L')
+                //Case 2: Cross right to left
+                else if (aPos.x < bPos.x + threshold && lastA > lastB - threshold)
                 {
-                    if (!Aintersects.Contains(x)) {
+                    if (!Aintersects.Contains(x))
+                    {
                         Aintersects.Add(x);
                     }
-                    if (!Bintersects.Contains(y)) {
+                    if (!Bintersects.Contains(y))
+                    {
                         Bintersects.Add(y);
                     }
+                    break;
                 }
-                aSide = 'R';
+                else if (aPos.x > bPos.x - threshold && lastA < lastB + threshold)
+                {
+                    if (!Aintersects.Contains(x))
+                    {
+                        Aintersects.Add(x);
+                    }
+                    if (!Bintersects.Contains(y))
+                    {
+                        Bintersects.Add(y);
+                    }
+                    break;
+                }
             }
+            lastA = aPos.x;
+            lastB = bPos.x;
 
             //Step 2: Check whether the next points x-coordinates align
             //Case 1: Same height check and increase both
@@ -163,13 +175,14 @@ public class BranchController : MonoBehaviour {
     //Takes a list of branches and separates them there they overlap
     public List<List<List<Vector2>>> splitGaps(List<List<Vector2>> branch_paths)
     {
-
+        //gaps holds the points to split on for each branch path
         List<List<int>> gaps = new List<List<int>>();
         for (int i = 0; i < branch_paths.Count; i++)
         {
             gaps.Add(new List<int>());
         }
 
+        //Add all intersect points for each combination of branch paths
         for (int i = 0; i < branch_paths.Count; i++)
         {
             for (int j = i + 1; j < branch_paths.Count; j++)
@@ -177,6 +190,18 @@ public class BranchController : MonoBehaviour {
                 var g = getIntersects(branch_paths[i], branch_paths[j]);
                 gaps[i] = gaps[i].Union<int>(g[0]).ToList<int>();
                 gaps[j] = gaps[j].Union<int>(g[1]).ToList<int>();
+                /*
+                foreach (int x in g[0])
+                {
+                    if (!gaps[i].Contains(x))
+                        gaps[i].Add(x);
+                }
+                foreach (int x in g[1])
+                {
+                    if (!gaps[j].Contains(x))
+                        gaps[j].Add(x);
+                }
+                */
             }
         }
 
@@ -186,14 +211,19 @@ public class BranchController : MonoBehaviour {
 
         for (int i = 0; i < gaps.Count; i++)
         {
+            //Iterate through gaps and create inactive branches before each
             int start = 0;
             for (int j = 0; j < gaps[i].Count - 1; j++)
             {
-                if (gaps[i][j] - start > 0)
-                    newBranches[1].Add(branch_paths[i].GetRange(start, gaps[i][j] - start));
+                if (gaps[i][j] - start > 1)
+                    newBranches[1].Add(branch_paths[i].GetRange(start, gaps[i][j] - (start+1)));
                 start = gaps[i][j] + 1;
             }
-            newBranches[0].Add(branch_paths[i].GetRange(start, branch_paths[i].Count - start));
+            //Add the remainder as an active branch
+            if (branch_paths[i].Count == start)
+                newBranches[0].Add(new List<Vector2> { branch_paths[i].Last() });
+            else
+                newBranches[0].Add(branch_paths[i].GetRange(start, branch_paths[i].Count - start));
         }
 
         return newBranches;
@@ -225,7 +255,9 @@ public class BranchController : MonoBehaviour {
                 unique = true;
                 for (int j = i - 1; j >= 0; j--)
                 {
-                    if (Mathf.Abs(newX - branchGroup[j][1].x) < 2)
+                    if (Mathf.Abs(newX - branchGroup[j][1].x) < 2
+                        || Mathf.Abs(newX - (branchGroup[j][1].x + screenWidth)) < 2
+                        || Mathf.Abs(newX - (branchGroup[j][1].x - screenWidth)) < 2)
                     {
                         unique = false;
                     }
@@ -364,26 +396,6 @@ public class BranchController : MonoBehaviour {
             Destroy(br);
         }
     }
-
-
-    private List<int> findOverlaps(List<Vector2> a, List<Vector2> b) {
-		List<int> overlaps = new List<int>();
-		for (int i = 1; i < a.Count; i++) {
-			for (int j = 0; j < 3; j++) {
-				float x1 = a [i - 1].x + (6*j - 6);
-				float x2 = a [i].x + (6*j - 6);
-				float y1 = b [i - 1].x;
-				float y2 = b [i].x;
-				if (!overlaps.Contains(i)
-					&& (x1 == y1 || x2 == y2
-				    || (x1 < y1 && x2 > y2)
-					|| (x1 > y1 && x2 < y2))) {
-					overlaps.Add (i);
-				}
-			}
-		}
-		return overlaps;
-	}
 
 	public void trimBranches(float bot, float top){
         bool grow = false;
