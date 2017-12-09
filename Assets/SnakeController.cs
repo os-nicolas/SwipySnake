@@ -14,12 +14,47 @@ public class SnakeController : MonoBehaviour {
 	public float 		gravity;
 	public LineRenderer tragLine;			//Draws Jump Tragectory Line
 	public int			collisionCooldown;	//Cooldown Timer avoids collisions immediately after jumping
-    private float       diffY, diffX;
-	public bool 		die;
+    public bool 		die;
     public Vector3      centerPos;
     WiggleController    wiggleController;
 	GameObject			tail;
 
+    private readonly JumpController jumpController = new JumpController();
+    private class JumpController {
+        public float VelociyY
+        {
+            get
+            {
+                return SPEEDSCALE * pos.y / DMAX;//pos.magnitude ;
+            }
+        }
+        public float VelociyX { get {
+                return  SPEEDSCALE * pos.x / DMAX; ;// pos.magnitude;
+            } }
+        private const float SPEEDSCALE = .2f, DMAX = 10, DMIN = .2f, DIRECTIONSCALE = .95f, STEPS = 16;
+        private Vector2 pos= new Vector2(0,DMAX);
+        public void Update(Vector2 change) {
+            var unit = (change / STEPS);
+            var i = 0;
+            for (; i < STEPS && (unit + pos).magnitude < DMAX; i++) {
+                pos += unit;
+                change -= unit;
+            }
+
+            if (i != STEPS)
+            {
+                var posOrthoginalNormalized = new Vector2(-pos.y, pos.x).normalized;
+                var realChange = ((change.x * posOrthoginalNormalized.x) + (change.y * posOrthoginalNormalized.y)) * posOrthoginalNormalized;
+
+
+                pos += realChange;
+                if (pos.magnitude > DMIN)
+                {
+                    pos = pos * (DMAX / pos.magnitude);
+                }
+            }
+        }
+    }
 
     public Lazy<SnakeTail> SnakeTail;
 
@@ -55,9 +90,9 @@ public class SnakeController : MonoBehaviour {
 		mousePos.z = 10;
         mousePos = Camera.main.ScreenToWorldPoint(mousePos);
 
+
+        jumpController.Update(new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")));
         
-        diffX = (mousePos.x - centerPos.x) / mouseDamper;
-        diffY = (mousePos.y - centerPos.y) / mouseDamper;
         
         if (!isJumping) {
             if (Input.GetMouseButtonDown(0))
@@ -73,8 +108,8 @@ public class SnakeController : MonoBehaviour {
 
     private void Jump()
     {
-        xVeloc = diffX;
-        yVeloc = diffY;
+        xVeloc = jumpController.VelociyX;
+        yVeloc = jumpController.VelociyY;
         isJumping = true;
         collisionCooldown = 5;
         branchVeloc = 0;
@@ -106,7 +141,7 @@ public class SnakeController : MonoBehaviour {
             var wigglePos = wiggleController.Wiggle(centerPos, lastp);
             SnakeTail.Get().retraceTail(wigglePos);
         }
-        drawTrajectory(diffX, diffY);
+        drawTrajectory(jumpController.VelociyX, jumpController.VelociyY);
     }
 
     private class WiggleController
